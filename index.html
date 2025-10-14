@@ -13,10 +13,14 @@
             --light-color: #f5f6fa;
             --text-color: #636e72;
             --text-light: #b2bec3;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --gradient-bg: linear-gradient(135deg, #f5f6fa, #e9ecef);
+            --border-radius: 12px;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
         }
 
         * {
@@ -24,6 +28,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -32,19 +38,22 @@
             height: 100vh;
             overflow: hidden;
             line-height: 1.6;
+            font-size: 16px; /* Base font size for PC */
         }
 
         .app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
+            max-width: 1600px; /* Constrain for larger screens */
+            margin: 0 auto;
         }
 
         .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
+            padding: var(--spacing-md) var(--spacing-lg);
             background: rgba(255, 255, 255, 0.95);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
@@ -56,8 +65,8 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.5rem;
+            gap: var(--spacing-sm);
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--primary-color);
         }
@@ -65,13 +74,13 @@
         .search-bar {
             position: relative;
             flex: 1;
-            max-width: 600px;
-            margin: 0 1rem;
+            max-width: 700px;
+            margin: 0 var(--spacing-lg);
         }
 
         .search-bar input {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
+            padding: 0.9rem 1.5rem 0.9rem 3.5rem;
             border-radius: 30px;
             border: 1px solid var(--text-light);
             outline: none;
@@ -91,6 +100,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-light);
+            font-size: 1.1rem;
         }
 
         .main-content {
@@ -100,9 +110,9 @@
         }
 
         .sidebar {
-            width: 250px;
+            width: 280px; /* Wider sidebar for PC */
             background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem;
+            padding: var(--spacing-lg);
             overflow-y: auto;
             border-right: 1px solid rgba(0, 0, 0, 0.05);
             backdrop-filter: blur(10px);
@@ -114,15 +124,16 @@
         }
 
         .sidebar nav ul li {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--border-radius);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 1rem;
             transition: var(--transition);
             font-weight: 500;
+            font-size: 1rem;
         }
 
         .sidebar nav ul li:hover {
@@ -139,10 +150,10 @@
 
         .music-content {
             flex: 1;
-            padding: 2rem;
+            padding: var(--spacing-lg);
             overflow-y: auto;
             background: rgba(255, 255, 255, 0.3);
-            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .tab-content {
@@ -159,24 +170,20 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Disclaimer Tab Styles - Optimized */
+        /* Disclaimer Tab Styles */
         .disclaimer-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: var(--spacing-lg);
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow-lg);
             backdrop-filter: blur(10px);
             text-align: center;
         }
 
-        .disclaimer-header {
-            margin-bottom: 2rem;
-        }
-
         .disclaimer-title {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-size: 2rem;
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 1rem;
@@ -187,14 +194,14 @@
             font-size: 1.1rem;
             color: var(--text-color);
             font-weight: 400;
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 700px;
+            margin: 0 auto 2rem;
         }
 
         .disclaimer-content {
             background: white;
-            padding: 2rem;
-            border-radius: 16px;
+            padding: var(--spacing-lg);
+            border-radius: calc(var(--border-radius) - 2px);
             box-shadow: var(--shadow);
             margin: 2rem 0;
             border-left: 5px solid var(--primary-color);
@@ -206,7 +213,7 @@
         }
 
         .disclaimer-section h3 {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: var(--primary-color);
             margin-bottom: 1rem;
             font-weight: 600;
@@ -222,13 +229,12 @@
             margin-bottom: 1rem;
         }
 
-        /* Special Thanks - Simple List */
         .special-thanks {
             margin-top: 1.5rem;
         }
 
         .special-thanks h4 {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--primary-color);
             margin-bottom: 1rem;
             font-weight: 600;
@@ -240,7 +246,7 @@
         }
 
         .special-thanks li {
-            padding: 0.5rem 0;
+            padding: 0.75rem 0;
             color: var(--text-color);
             font-size: 1rem;
             border-bottom: 1px solid rgba(108, 92, 231, 0.1);
@@ -279,13 +285,13 @@
 
         .search-results {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: var(--spacing-md);
         }
 
         .music-card {
             background: white;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             overflow: hidden;
             box-shadow: var(--shadow);
             transition: var(--transition);
@@ -300,16 +306,16 @@
 
         .music-card img {
             width: 100%;
-            height: 160px;
+            height: 180px; /* Adjusted for PC */
             object-fit: cover;
         }
 
         .music-info {
-            padding: 1rem;
+            padding: var(--spacing-md);
         }
 
         .music-info h3 {
-            font-size: 1rem;
+            font-size: 1.1rem;
             margin-bottom: 0.25rem;
             white-space: nowrap;
             overflow: hidden;
@@ -317,7 +323,7 @@
         }
 
         .music-info p {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-color);
         }
 
@@ -329,7 +335,7 @@
             border: none;
             color: var(--text-light);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.1rem;
             padding: 0.5rem;
             border-radius: 50%;
             transition: var(--transition);
@@ -358,17 +364,17 @@
         }
 
         .empty-state p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
 
         .empty-state p:last-child {
-            font-size: 0.9rem;
+            font-size: 1rem;
             margin-top: 0.5rem;
         }
 
         .player-controls {
             background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
+            padding: var(--spacing-md) var(--spacing-lg);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -382,14 +388,13 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            width: 250px;
-            min-width: 250px;
+            min-width: 300px;
         }
 
         .album-art {
-            width: 50px;
-            height: 50px;
-            border-radius: 5px;
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
             object-fit: cover;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
@@ -397,6 +402,7 @@
 
         .song-title {
             font-weight: 500;
+            font-size: 1.1rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -404,7 +410,7 @@
         }
 
         .artist {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
@@ -417,6 +423,7 @@
             cursor: pointer;
             margin-left: auto;
             flex-shrink: 0;
+            font-size: 1.2rem;
         }
 
         .song-info i.liked {
@@ -429,24 +436,23 @@
 
         .player-center {
             flex: 1;
-            max-width: 600px;
+            max-width: 700px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            min-width: 0;
+            gap: 0.75rem;
         }
 
         .player-buttons {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: var(--spacing-lg);
         }
 
         .control-btn {
             background: none;
             border: none;
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: var(--text-color);
             cursor: pointer;
             transition: var(--transition);
@@ -454,14 +460,14 @@
 
         .control-btn:hover {
             color: var(--primary-color);
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
 
         .play-btn {
             background-color: var(--primary-color);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -470,8 +476,9 @@
         }
 
         .play-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             background-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
         }
 
         .progress-container {
@@ -483,12 +490,11 @@
 
         .progress-bar {
             flex: 1;
-            height: 4px;
+            height: 5px;
             background-color: #eee;
             border-radius: 2px;
             cursor: pointer;
             position: relative;
-            min-width: 200px;
         }
 
         .progress {
@@ -500,15 +506,15 @@
         }
 
         .time {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-color);
-            min-width: 40px;
+            min-width: 50px;
             font-weight: 500;
             flex-shrink: 0;
         }
 
         .player-right {
-            width: 200px;
+            min-width: 250px;
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -519,11 +525,11 @@
         .volume-control {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .volume-icon {
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: var(--text-color);
             transition: transform 0.2s ease;
             flex-shrink: 0;
@@ -542,37 +548,45 @@
         }
 
         .volume-slider {
-            width: 100px;
-            height: 4px;
+            width: 120px;
+            height: 5px;
             -webkit-appearance: none;
             background-color: #eee;
             border-radius: 2px;
             outline: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             cursor: pointer;
-            flex-shrink: 0;
         }
 
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background-color: var(--primary-color);
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
+        .volume-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
         .loading {
             display: flex;
             justify-content: center;
-            padding: 2rem;
+            padding: 3rem;
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
@@ -584,17 +598,17 @@
 
         /* Changelog Styles */
         .changelog-container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 2rem 0;
+            padding: var(--spacing-lg) 0;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
         }
 
         .changelog-title {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 2rem;
@@ -604,17 +618,17 @@
 
         .changelog-timeline {
             position: relative;
-            padding-left: 2rem;
-            margin: 0 1.5rem;
+            padding-left: 2.5rem;
+            margin: 0 2rem;
         }
 
         .changelog-timeline::before {
             content: '';
             position: absolute;
-            left: 0.5rem;
+            left: 0.75rem;
             top: 0;
             bottom: 0;
-            width: 4px;
+            width: 5px;
             background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
             border-radius: 3px;
         }
@@ -624,9 +638,9 @@
             margin-bottom: 2rem;
             padding: 1.5rem;
             background: white;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: var(--transition);
             opacity: 0;
             transform: translateY(20px);
             animation: slideIn 0.5s ease forwards;
@@ -642,14 +656,14 @@
         }
 
         .changelog-item h3 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 600;
             color: var(--dark-color);
             margin-bottom: 0.5rem;
         }
 
         .changelog-item .date {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 500;
             color: var(--text-light);
             margin-bottom: 1rem;
@@ -682,179 +696,10 @@
         .changelog-item ul li.optimized::before { color: #ffc107; }
         .changelog-item ul li.bug::before { color: #dc3545; }
 
-        /* Mobile Optimization */
-        @media (max-width: 768px) {
-            .app-header {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .search-bar {
-                width: 100%;
-                margin: 0;
-                order: 3;
-            }
-
-            .logo {
-                order: 1;
-                font-size: 1.25rem;
-            }
-
-            .main-content {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 60px;
-                padding: 0;
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                z-index: 100;
-                border-right: none;
-                border-top: 1px solid rgba(0, 0, 0, 0.05);
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-            }
-
-            .sidebar nav ul {
-                display: flex;
-                width: 100%;
-                justify-content: space-around;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sidebar nav ul li {
-                padding: 0.5rem;
-                margin: 0;
-                flex-direction: column;
-                font-size: 0.7rem;
-                gap: 0.25rem;
-                text-align: center;
-                border-radius: 8px;
-                width: 20%;
-            }
-
-            .sidebar nav ul li i {
-                font-size: 1.2rem;
-            }
-
-            .music-content {
-                padding: 1rem;
-                margin-bottom: 60px;
-                padding-bottom: 80px;
-            }
-
-            .disclaimer-container {
-                padding: 1rem;
-                margin: 0.5rem;
-            }
-
-            .disclaimer-title {
-                font-size: 1.8rem;
-            }
-
-            .disclaimer-content {
-                padding: 1.5rem;
-                margin: 1rem 0;
-            }
-
-            .disclaimer-section h3 {
-                font-size: 1.1rem;
-            }
-
-            .special-thanks li {
-                font-size: 0.95rem;
-            }
-
-            .continue-btn {
-                padding: 0.875rem 2rem;
-                font-size: 1rem;
-            }
-
-            .search-results {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 1rem;
-            }
-
-            .player-controls {
-                padding: 0.75rem 1rem;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .song-info, .player-center, .player-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .song-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .player-right {
-                width: 100%;
-                justify-content: flex-end;
-            }
-
-            .player-buttons {
-                gap: 1rem;
-            }
-
-            .progress-container {
-                width: 100%;
-            }
-
-            .volume-control {
-                gap: 0.75rem;
-            }
-
-            .changelog-container {
-                padding: 1rem;
-                margin: 0 0.5rem;
-            }
-
-            .changelog-title {
-                font-size: 1.75rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .music-card img {
-                height: 120px;
-            }
-
-            .player-controls {
-                padding: 0.5rem;
-            }
-
-            .song-info {
-                gap: 0.5rem;
-            }
-
-            .album-art {
-                width: 40px;
-                height: 40px;
-            }
-
-            .player-buttons {
-                gap: 0.75rem;
-            }
-
-            .play-btn {
-                width: 35px;
-                height: 35px;
-            }
-
-            .control-btn {
-                font-size: 0.9rem;
+        /* Legacy Browser Support */
+        @supports not (backdrop-filter: blur(10px)) {
+            .app-header, .sidebar, .player-controls, .disclaimer-container, .changelog-container {
+                background: rgba(255, 255, 255, 0.9);
             }
         }
     </style>
@@ -887,10 +732,8 @@
             <main class="music-content">
                 <div id="disclaimer-tab" class="tab-content active">
                     <div class="disclaimer-container">
-                        <div class="disclaimer-header">
-                            <h1 class="disclaimer-title">Welcome to Vayleno</h1>
-                            <p class="disclaimer-subtitle">A collaborative music discovery experience powered by cutting-edge AI</p>
-                        </div>
+                        <h1 class="disclaimer-title">Welcome to Vayleno</h1>
+                        <p class="disclaimer-subtitle">A collaborative music discovery experience powered by cutting-edge AI</p>
                         
                         <div class="disclaimer-content">
                             <div class="disclaimer-section">
@@ -983,7 +826,7 @@
 
         <div class="player-controls">
             <div class="song-info">
-                <img src="https://via.placeholder.com/50" alt="Album Art" class="album-art" id="current-album-art">
+                <img src="https://via.placeholder.com/60" alt="Album Art" class="album-art" id="current-album-art">
                 <div>
                     <p class="song-title" id="current-song-title">No song selected</p>
                     <p class="artist" id="current-song-artist">-</p>
@@ -1124,7 +967,7 @@
             } else {
                 currentSongTitle.textContent = 'No song selected';
                 currentSongArtist.textContent = '-';
-                currentAlbumArt.src = 'https://via.placeholder.com/50';
+                currentAlbumArt.src = 'https://via.placeholder.com/60';
                 durationEl.textContent = '0:00';
                 currentTimeEl.textContent = '0:00';
                 progress.style.width = '0%';
@@ -1190,7 +1033,6 @@
             }
         }
 
-        // Rest of the JavaScript remains the same as previous version...
         function playSong(index, source) {
             if (index < 0 || index >= currentPlaylist.length) return;
             currentSongIndex = index;
@@ -1463,8 +1305,10 @@
         });
 
         // Initial setup
-        switchTab('disclaimer-tab');
-        updateVolumeIcon(80);
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('disclaimer-tab');
+            updateVolumeIcon(80);
+        });
     </script>
 </body>
 </html>
