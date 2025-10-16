@@ -95,31 +95,6 @@
             font-size: 0.56rem;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.28rem;
-            font-size: 0.56rem;
-            color: var(--text-color);
-        }
-
-        .user-info span {
-            font-weight: 500;
-        }
-
-        .user-info button {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            font-size: 0.56rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-info button:hover {
-            color: var(--secondary-color);
-        }
-
         .main-content {
             display: flex;
             flex: 1;
@@ -185,88 +160,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5.6px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .auth-container {
-            max-width: 336px;
-            margin: 0 auto;
-            padding: 1.12rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 11.2px;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(7px);
-            text-align: center;
-        }
-
-        .auth-header {
-            margin-bottom: 1.12rem;
-        }
-
-        .auth-title {
-            font-size: 1.12rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-        }
-
-        .auth-subtitle {
-            font-size: 0.616rem;
-            color: var(--text-color);
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.56rem;
-        }
-
-        .auth-form input {
-            padding: 0.42rem;
-            border-radius: 8.4px;
-            border: 0.7px solid var(--text-light);
-            outline: none;
-            font-size: 0.56rem;
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        .auth-form input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 1.68px rgba(108, 92, 231, 0.1);
-        }
-
-        .auth-form button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 0.56rem;
-            border-radius: 28px;
-            font-size: 0.616rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .auth-form button:hover {
-            transform: translateY(-1.12px);
-            box-shadow: 0 4.2px 14px rgba(108, 92, 231, 0.4);
-        }
-
-        .auth-toggle {
-            font-size: 0.56rem;
-            color: var(--primary-color);
-            cursor: pointer;
-            margin-top: 0.56rem;
-        }
-
-        .auth-toggle:hover {
-            color: var(--secondary-color);
-        }
-
-        .auth-error {
-            font-size: 0.504rem;
-            color: #dc3545;
-            margin-top: 0.28rem;
-            display: none;
         }
 
         .home-container {
@@ -888,15 +781,6 @@
                 font-size: 0.672rem;
             }
 
-            .user-info {
-                font-size: 0.504rem;
-                order: 2;
-            }
-
-            .user-info button {
-                font-size: 0.504rem;
-            }
-
             .main-content {
                 flex-direction: column;
             }
@@ -934,7 +818,7 @@
                 gap: 0.14rem;
                 text-align: center;
                 border-radius: 4.2px;
-                width: 14.29%;
+                width: 16.67%;
             }
 
             .sidebar nav ul li i {
@@ -945,37 +829,6 @@
                 padding: 0.42rem;
                 margin-bottom: 84px;
                 padding-bottom: 84px;
-            }
-
-            .auth-container {
-                padding: 0.42rem;
-                margin: 0.28rem;
-            }
-
-            .auth-title {
-                font-size: 0.896rem;
-            }
-
-            .auth-subtitle {
-                font-size: 0.504rem;
-            }
-
-            .auth-form input {
-                padding: 0.35rem;
-                font-size: 0.504rem;
-            }
-
-            .auth-form button {
-                padding: 0.42rem;
-                font-size: 0.504rem;
-            }
-
-            .auth-toggle {
-                font-size: 0.504rem;
-            }
-
-            .auth-error {
-                font-size: 0.448rem;
             }
 
             .disclaimer-container {
@@ -1233,10 +1086,6 @@
                 <input type="text" placeholder="Search for songs..." id="search-input">
                 <i class="fas fa-search"></i>
             </div>
-            <div class="user-info">
-                <span id="user-name">Guest</span>
-                <button id="auth-btn">Login</button>
-            </div>
         </header>
 
         <div class="main-content">
@@ -1249,7 +1098,6 @@
                         <li data-tab="favorites-tab"><i class="fas fa-heart"></i> <span>Favorites</span></li>
                         <li data-tab="history-tab"><i class="fas fa-history"></i> <span>History</span></li>
                         <li data-tab="changelogs-tab"><i class="fas fa-clipboard-list"></i> <span>Changelogs</span></li>
-                        <li data-tab="auth-tab"><i class="fas fa-user"></i> <span>Account</span></li>
                     </ul>
                 </nav>
             </aside>
@@ -1294,11 +1142,11 @@
                             </div>
                             <div class="disclaimer-section">
                                 <h3><i class="fas fa-key"></i> Technical Foundation</h3>
-                                <p>Vayleno leverages a powerful online music API, provided completely free of charge. This enables access to a vast library of music content while maintaining compliance with the API's terms of service. Our custom interface and design philosophy create a unique user experience, distinct from standard interfaces, while transparently utilizing this powerful free API service.</p>
+                                <p>Vayleno leverages the YouTube Data API, provided completely free of charge by Google. This enables access to a vast library of music content while maintaining compliance with YouTube's terms of service. Our custom interface and design philosophy create a unique user experience, distinct from standard YouTube interfaces, while transparently utilizing this powerful free API service.</p>
                                 <div class="special-thanks">
                                     <h4>Special Thanks To:</h4>
                                     <ul>
-                                        <li>Online Music API - For providing free access to music content</li>
+                                        <li>YouTube API - For providing free access to music content</li>
                                         <li>ChatGPT - For creative development assistance</li>
                                         <li>Gemini - For innovative problem solving</li>
                                         <li>xAI - For advanced AI capabilities</li>
@@ -1347,10 +1195,9 @@
                         <h2 class="changelog-title">Vayleno Updates</h2>
                         <div class="changelog-timeline">
                             <div class="changelog-item">
-                                <h3>Version 1.1.0</h3>
+                                <h3>Version 1.0.9</h3>
                                 <div class="date">October 16, 2025</div>
                                 <ul>
-                                    <li class="added">Added sign-up and login system to save your favorites and history</li>
                                     <li class="fixed">Fixed Pause Across All Tabs</li>
                                     <li class="fixed">Fixed Favorite toggling next to pause button</li>
                                     <li class="added">Added Dashboard Information To Track Your Music Experience</li>
@@ -1380,22 +1227,6 @@
                                     <li class="bug">Fixed a glitch where the song progress bar didn't show right at first</li>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="auth-tab" class="tab-content">
-                    <div class="auth-container">
-                        <div class="auth-header">
-                            <h1 class="auth-title" id="auth-title">Login</h1>
-                            <p class="auth-subtitle" id="auth-subtitle">Sign in to access your favorites and history</p>
-                        </div>
-                        <div class="auth-form">
-                            <input type="text" id="username" placeholder="Username">
-                            <input type="password" id="password" placeholder="Password">
-                            <button id="auth-submit">Login</button>
-                            <div class="auth-toggle" id="auth-toggle">Don't have an account? Sign Up</div>
-                            <div class="auth-error" id="auth-error"></div>
                         </div>
                     </div>
                 </div>
@@ -1461,16 +1292,6 @@
         const songsPlayedEl = document.getElementById('songs-played');
         const songsSearchedEl = document.getElementById('songs-searched');
         const songsFavoritedEl = document.getElementById('songs-favorited');
-        const authBtn = document.getElementById('auth-btn');
-        const authTab = document.getElementById('auth-tab');
-        const authTitle = document.getElementById('auth-title');
-        const authSubtitle = document.getElementById('auth-subtitle');
-        const authSubmit = document.getElementById('auth-submit');
-        const authToggle = document.getElementById('auth-toggle');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const authError = document.getElementById('auth-error');
-        const userNameDisplay = document.getElementById('user-name');
 
         let player;
         let isPlaying = false;
@@ -1480,147 +1301,31 @@
         let progressInterval;
         let currentPlaylist = [];
         let searchResultsData = [];
-        let favorites = [];
-        let history = [];
-        let stats = {
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let history = JSON.parse(localStorage.getItem('history')) || [];
+        let stats = JSON.parse(localStorage.getItem('musicStats')) || {
             songsPlayed: 0,
             songsSearched: 0,
             songsFavorited: 0
         };
         let currentMode = 'dashboard';
         let currentSong = null;
-        let currentUser = null;
-
-        async function hashPassword(password) {
-            const msgBuffer = new TextEncoder().encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            return Array.from(new Uint8Array(hashBuffer))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-        }
-
-        function saveUserData() {
-            if (!currentUser) return;
-            const userData = {
-                password: currentUser.password,
-                favorites: favorites,
-                history: history,
-                stats: stats
-            };
-            localStorage.setItem(`vayleno_user_${currentUser.username}`, JSON.stringify(userData));
-        }
-
-        function loadUserData(username) {
-            const userData = JSON.parse(localStorage.getItem(`vayleno_user_${username}`));
-            if (userData) {
-                favorites = userData.favorites || [];
-                history = userData.history || [];
-                stats = userData.stats || { songsPlayed: 0, songsSearched: 0, songsFavorited: 0 };
-                updateStatsDisplay();
-                if (currentMode === 'favorites') renderFavorites();
-                if (currentMode === 'history') renderHistory();
-            } else {
-                favorites = [];
-                history = [];
-                stats = { songsPlayed: 0, songsSearched: 0, songsFavorited: 0 };
-                updateStatsDisplay();
-            }
-        }
-
-        async function handleSignUp() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!username || !password) {
-                authError.textContent = 'Please enter both username and password';
-                authError.style.display = 'block';
-                return;
-            }
-            if (localStorage.getItem(`vayleno_user_${username}`)) {
-                authError.textContent = 'Username already exists';
-                authError.style.display = 'block';
-                return;
-            }
-            const hashedPassword = await hashPassword(password);
-            currentUser = { username, password: hashedPassword };
-            favorites = [];
-            history = [];
-            stats = { songsPlayed: 0, songsSearched: 0, songsFavorited: 0 };
-            saveUserData();
-            userNameDisplay.textContent = username;
-            authBtn.textContent = 'Logout';
-            switchTab('dashboard-tab');
-            authError.style.display = 'none';
-        }
-
-        async function handleLogin() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!username || !password) {
-                authError.textContent = 'Please enter both username and password';
-                authError.style.display = 'block';
-                return;
-            }
-            const userData = JSON.parse(localStorage.getItem(`vayleno_user_${username}`));
-            if (!userData) {
-                authError.textContent = 'Username does not exist';
-                authError.style.display = 'block';
-                return;
-            }
-            const hashedPassword = await hashPassword(password);
-            if (userData.password !== hashedPassword) {
-                authError.textContent = 'Incorrect password';
-                authError.style.display = 'block';
-                return;
-            }
-            currentUser = { username, password: hashedPassword };
-            loadUserData(username);
-            userNameDisplay.textContent = username;
-            authBtn.textContent = 'Logout';
-            switchTab('dashboard-tab');
-            authError.style.display = 'none';
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            favorites = [];
-            history = [];
-            stats = { songsPlayed: 0, songsSearched: 0, songsFavorited: 0 };
-            updateStatsDisplay();
-            userNameDisplay.textContent = 'Guest';
-            authBtn.textContent = 'Login';
-            switchTab('auth-tab');
-            if (currentMode === 'favorites') renderFavorites();
-            if (currentMode === 'history') renderHistory();
-        }
-
-        function toggleAuthMode() {
-            if (authTitle.textContent === 'Login') {
-                authTitle.textContent = 'Sign Up';
-                authSubtitle.textContent = 'Create an account to save your music preferences';
-                authSubmit.textContent = 'Sign Up';
-                authToggle.textContent = 'Already have an account? Login';
-            } else {
-                authTitle.textContent = 'Login';
-                authSubtitle.textContent = 'Sign in to access your favorites and history';
-                authSubmit.textContent = 'Login';
-                authToggle.textContent = 'Don\'t have an account? Sign Up';
-            }
-            authError.style.display = 'none';
-            usernameInput.value = '';
-            passwordInput.value = '';
-        }
 
         function saveFavorites() {
+            localStorage.setItem('favorites', JSON.stringify(favorites));
             stats.songsFavorited = favorites.length;
-            saveUserData();
+            saveStats();
             updateStatsDisplay();
             updateLikeButton();
         }
 
         function saveHistory() {
-            if (history.length > 100) history.pop();
-            saveUserData();
+            localStorage.setItem('history', JSON.stringify(history));
             updateStatsDisplay();
+        }
+
+        function saveStats() {
+            localStorage.setItem('musicStats', JSON.stringify(stats));
         }
 
         function updateStatsDisplay() {
@@ -1655,8 +1360,10 @@
         function addToHistory(song) {
             history = history.filter(h => h.videoId !== song.videoId);
             history.unshift(song);
+            if (history.length > 100) history.pop();
             stats.songsPlayed++;
             saveHistory();
+            saveStats();
             updateStatsDisplay();
         }
 
@@ -1757,7 +1464,6 @@
                 case 'changelogs':
                 case 'disclaimer':
                 case 'dashboard':
-                case 'auth':
                     currentPlaylist = currentSong ? [currentSong] : [];
                     break;
             }
@@ -1949,7 +1655,7 @@
             `;
             try {
                 stats.songsSearched++;
-                saveUserData();
+                saveStats();
                 updateStatsDisplay();
                 const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${apiKey}&type=video&videoCategoryId=10&maxResults=50`);
                 if (!response.ok) throw new Error('Failed to fetch music results');
@@ -2039,24 +1745,6 @@
                 switchTab(tabId);
             });
         });
-
-        authBtn.addEventListener('click', () => {
-            if (currentUser) {
-                handleLogout();
-            } else {
-                switchTab('auth-tab');
-            }
-        });
-
-        authSubmit.addEventListener('click', async () => {
-            if (authSubmit.textContent === 'Login') {
-                await handleLogin();
-            } else {
-                await handleSignUp();
-            }
-        });
-
-        authToggle.addEventListener('click', toggleAuthMode);
 
         // Initial setup
         switchTab('dashboard-tab');
