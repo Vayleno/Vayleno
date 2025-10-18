@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vayleno | Music Player</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -754,65 +753,6 @@
         .changelog-item ul li.optimized::before { color: #ffc107; }
         .changelog-item ul li.bug::before { color: #dc3545; }
 
-        /* System Tab Styles */
-        .system-container {
-            max-width: 448px;
-            margin: 0 auto;
-            padding: 1.12rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 11.2px;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(7px);
-            text-align: center;
-        }
-
-        .system-header {
-            margin-bottom: 1.12rem;
-        }
-
-        .system-title {
-            font-size: 1.12rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-            letter-spacing: -0.02em;
-        }
-
-        .system-status-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .system-status-item {
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-            padding: 0.42rem 0;
-            border-bottom: 0.7px solid rgba(108, 92, 231, 0.1);
-            transition: var(--transition);
-            font-size: 0.56rem;
-        }
-
-        .system-status-item:last-child {
-            border-bottom: none;
-        }
-
-        .system-status-item i {
-            font-size: 0.84rem;
-        }
-
-        .system-status-item.good i {
-            color: #28a745;
-        }
-
-        .system-status-item.error i {
-            color: #dc3545;
-        }
-
-        .system-status-item:hover {
-            background-color: var(--light-color);
-        }
-
         @media (max-width: 768px) {
             .app-header {
                 padding: 0.56rem;
@@ -868,7 +808,7 @@
                 gap: 0.14rem;
                 text-align: center;
                 border-radius: 4.2px;
-                width: 14.28%;
+                width: 20%;
             }
 
             .sidebar nav ul li i {
@@ -881,12 +821,12 @@
                 padding-bottom: 44.8px;
             }
 
-            .disclaimer-container, .system-container {
+            .disclaimer-container {
                 padding: 0.56rem;
                 margin: 0.28rem;
             }
 
-            .disclaimer-title, .system-title {
+            .disclaimer-title {
                 font-size: 1.008rem;
             }
 
@@ -968,15 +908,6 @@
                 grid-template-columns: 1fr;
                 gap: 0.56rem;
             }
-
-            .control-btn {
-                padding: 0.56rem;
-            }
-
-            .play-btn {
-                width: 28px;
-                height: 28px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1009,15 +940,6 @@
             .control-btn {
                 font-size: 0.504rem;
             }
-
-            .control-btn {
-                padding: 0.42rem;
-            }
-        }
-
-        /* Additional touch optimizations */
-        .control-btn, .continue-btn, .favorite-btn {
-            touch-action: manipulation;
         }
     </style>
 </head>
@@ -1043,7 +965,6 @@
                         <li data-tab="favorites-tab"><i class="fas fa-heart"></i> <span>Favorites</span></li>
                         <li data-tab="history-tab"><i class="fas fa-history"></i> <span>History</span></li>
                         <li data-tab="changelogs-tab"><i class="fas fa-clipboard-list"></i> <span>Changelogs</span></li>
-                        <li data-tab="system-tab"><i class="fas fa-cogs"></i> <span>System</span></li>
                     </ul>
                 </nav>
             </aside>
@@ -1141,15 +1062,6 @@
                         <h2 class="changelog-title">Vayleno Updates</h2>
                         <div class="changelog-timeline">
                             <div class="changelog-item">
-                                <h3>Version 1.1.0</h3>
-                                <div class="date">October 17, 2025</div>
-                                <ul>
-                                    <li class="added">Added System tab for real-time status monitoring</li>
-                                    <li class="added">Made Vayleno a Progressive Web App (PWA) for offline use and installability</li>
-                                    <li class="optimized">Improved mobile optimization for cross-device compatibility</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
                                 <h3>Version 1.0.9</h3>
                                 <div class="date">October 16, 2025</div>
                                 <ul>
@@ -1182,17 +1094,6 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div id="system-tab" class="tab-content">
-                    <div class="system-container">
-                        <div class="system-header">
-                            <h1 class="system-title">System Status</h1>
-                        </div>
-                        <ul class="system-status-list" id="system-status-list">
-                            <li class="system-status-item"><i class="fas fa-circle-notch fa-spin"></i> Checking status...</li>
-                        </ul>
                     </div>
                 </div>
             </main>
@@ -1257,7 +1158,6 @@
         const songsPlayedEl = document.getElementById('songs-played');
         const songsSearchedEl = document.getElementById('songs-searched');
         const songsFavoritedEl = document.getElementById('songs-favorited');
-        const systemStatusList = document.getElementById('system-status-list');
 
         let player;
         let isPlaying = false;
@@ -1430,55 +1330,8 @@
                 case 'changelogs':
                 case 'disclaimer':
                 case 'dashboard':
-                case 'system':
                     currentPlaylist = currentSong ? [currentSong] : [];
-                    if (currentMode === 'system') {
-                        updateSystemStatus();
-                    }
                     break;
-            }
-        }
-
-        function updateSystemStatus() {
-            const statusList = document.getElementById('system-status-list');
-            statusList.innerHTML = '';
-
-            const checks = [
-                { name: 'Vayleno App', check: () => true, message: 'Running smoothly' }, // Mock app check
-                { name: 'xAI Integration', check: () => true, message: 'Running smoothly' }, // Mock xAI check
-                { name: 'Search API', check: () => checkApiStatus('https://www.googleapis.com/youtube/v3/search?part=snippet&q=test&key=${apiKey}&type=video&maxResults=1'), message: 'Responsive' },
-                { name: 'Player Status', check: () => player && player.getPlayerState() !== YT.PlayerState.ERROR, message: 'Ready' },
-                { name: 'Network Status', check: () => navigator.onLine, message: 'Online' },
-                { name: 'Local Storage', check: () => checkLocalStorage(), message: 'Accessible' },
-                { name: 'Website Monitoring', check: () => checkApiStatus('https://x.ai/'), message: 'Vayleno website spied - all good' } // "Spy" on x.ai as proxy
-            ];
-
-            checks.forEach(checkItem => {
-                const li = document.createElement('li');
-                li.classList.add('system-status-item');
-                const status = checkItem.check();
-                li.innerHTML = `<i class="fas fa-circle ${status ? 'good' : 'error'}"></i> ${checkItem.name}: ${status ? checkItem.message : 'Issue detected'}`;
-                li.classList.add(status ? 'good' : 'error');
-                statusList.appendChild(li);
-            });
-        }
-
-        function checkLocalStorage() {
-            try {
-                localStorage.setItem('test', 'test');
-                localStorage.removeItem('test');
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        async function checkApiStatus(url) {
-            try {
-                const response = await fetch(url, { mode: 'no-cors' });
-                return true;
-            } catch (e) {
-                return false;
             }
         }
 
@@ -1592,12 +1445,7 @@
                 </button>
             `;
             musicCard.addEventListener('click', () => playSong(index, source));
-            musicCard.addEventListener('touchstart', () => playSong(index, source)); // Add touch for mobile
             musicCard.querySelector('.favorite-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFavorite(song);
-            });
-            musicCard.querySelector('.favorite-btn').addEventListener('touchstart', (e) => {
                 e.stopPropagation();
                 toggleFavorite(song);
             });
@@ -1727,31 +1575,13 @@
         });
 
         playBtn.addEventListener('click', togglePlay);
-        playBtn.addEventListener('touchstart', togglePlay);
-
         prevBtn.addEventListener('click', playPrevious);
-        prevBtn.addEventListener('touchstart', playPrevious);
-
         nextBtn.addEventListener('click', playNext);
-        nextBtn.addEventListener('touchstart', playNext);
 
         progressBar.addEventListener('click', (e) => {
             if (!currentSong || trackDuration === 0) return;
             const rect = progressBar.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
-            const percent = clickX / rect.width;
-            currentTime = percent * trackDuration;
-            if (player) {
-                player.seekTo(currentTime, true);
-            }
-            progress.style.width = `${percent * 100}%`;
-            currentTimeEl.textContent = formatTime(currentTime);
-        });
-
-        progressBar.addEventListener('touchstart', (e) => {
-            if (!currentSong || trackDuration === 0) return;
-            const rect = progressBar.getBoundingClientRect();
-            const clickX = e.touches[0].clientX - rect.left;
             const percent = clickX / rect.width;
             currentTime = percent * trackDuration;
             if (player) {
@@ -1786,15 +1616,6 @@
         switchTab('dashboard-tab');
         updateVolumeIcon(80);
         updateStatsDisplay();
-
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered', reg))
-                    .catch(err => console.error('Service Worker registration failed', err));
-            });
-        }
     </script>
 </body>
 </html>
