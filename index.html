@@ -348,6 +348,42 @@
             box-shadow: 0 4.2px 14px rgba(108, 92, 231, 0.4);
         }
 
+        .form-group {
+            margin-bottom: 0.84rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.616rem;
+            color: var(--text-color);
+            margin-bottom: 0.28rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.42rem;
+            border-radius: 4.2px;
+            border: 0.7px solid var(--text-light);
+            background: white;
+            font-size: 0.56rem;
+            color: var(--dark-color);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1.68px rgba(108, 92, 231, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 84px;
+            resize: vertical;
+        }
+
         .search-results {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
@@ -548,7 +584,6 @@
 
         .player-buttons {
             display: flex;
-            align-items: center;
             gap: 0.84rem;
         }
 
@@ -1135,6 +1170,7 @@
                         <li data-tab="history-tab"><i class="fas fa-history"></i> <span>History</span></li>
                         <li data-tab="playlists-tab"><i class="fas fa-list-ul"></i> <span>Playlists</span></li>
                         <li data-tab="changelogs-tab"><i class="fas fa-clipboard-list"></i> <span>Changelogs</span></li>
+                        <li data-tab="contact-tab"><i class="fas fa-envelope"></i> <span>Contact Us</span></li>
                     </ul>
                 </nav>
             </aside>
@@ -1239,6 +1275,15 @@
                         <h2 class="changelog-title">Vayleno Updates</h2>
                         <div class="changelog-timeline">
                             <div class="changelog-item">
+                                <h3>Version 1.1.3</h3>
+                                <div class="date">October 20, 2025</div>
+                                <ul>
+                                    <li class="added">Added Contact Us tab with a form to collect user feedback</li>
+                                    <li class="added">Integrated Formspree for submission handling without a backend</li>
+                                    <li class="optimized">Styled contact form to match Vayleno's purple-themed UI</li>
+                                </ul>
+                            </div>
+                            <div class="changelog-item">
                                 <h3>Version 1.1.2</h3>
                                 <div class="date">October 20, 2025</div>
                                 <ul>
@@ -1300,6 +1345,33 @@
                                     <li class="bug">Fixed progress bar display issue on initial load</li>
                                 </ul>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="contact-tab" class="tab-content">
+                    <div class="disclaimer-container">
+                        <div class="disclaimer-header">
+                            <h1 class="disclaimer-title">Contact Us</h1>
+                            <p class="disclaimer-subtitle">Have questions or feedback? Reach out to the Vayleno team!</p>
+                        </div>
+                        <div class="disclaimer-content">
+                            <form action="https://formspree.io/f/xkgqajpr" method="POST" id="contact-form">
+                                <div class="form-group">
+                                    <label for="contact-name">Your name:</label>
+                                    <input type="text" id="contact-name" name="name" placeholder="Enter your name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-email">Your email:</label>
+                                    <input type="email" id="contact-email" name="email" placeholder="Enter your email (Required)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-message">Your message:</label>
+                                    <textarea id="contact-message" name="message" placeholder="Enter your message" required></textarea>
+                                </div>
+                                <button type="submit" class="continue-btn"><i class="fas fa-paper-plane"></i> Send</button>
+                            </form>
+                            <p class="disclaimer-subtitle" style="margin-top: 0.56rem;">We'll get back to you soon!</p>
                         </div>
                     </div>
                 </div>
@@ -1556,6 +1628,7 @@
                     renderPlaylists();
                     document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
                     break;
+                case 'contact':
                 case 'changelogs':
                 case 'disclaimer':
                 case 'dashboard':
@@ -2028,39 +2101,36 @@
             const rect = progressBar.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const percent = clickX / rect.width;
-            currentTime = percent * trackDuration;
-            if (player) {
-                player.seekTo(currentTime, true);
-            }
-            progress.style.width = `${percent * 100}%`;
-            currentTimeEl.textContent = formatTime(currentTime);
+            const newTime = percent * trackDuration;
+            player.seekTo(newTime);
+            currentTime = newTime;
+            updateProgress();
         });
 
         volumeSlider.addEventListener('input', function() {
-            const volume = this.value;
-            if (player && typeof player.setVolume === 'function') {
-                player.setVolume(volume);
-            }
-            updateVolumeIcon(volume);
+            const volume = this.value / 100;
+            if (player) player.setVolume(this.value);
+            updateVolumeIcon(this.value);
         });
 
         likeBtn.addEventListener('click', () => {
-            if (currentSong) {
-                toggleFavorite(currentSong);
-            }
+            toggleFavorite(currentSong);
         });
 
         tabButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                switchTab(tabId);
+            button.addEventListener('click', () => {
+                switchTab(button.dataset.tab);
             });
         });
 
-        // Initial setup
-        switchTab('dashboard-tab');
-        updateVolumeIcon(80);
+        // Initialize stats display
         updateStatsDisplay();
+
+        // Initialize volume
+        if (player) {
+            player.setVolume(volumeSlider.value);
+            updateVolumeIcon(volumeSlider.value);
+        }
     </script>
 </body>
 </html>
