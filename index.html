@@ -391,7 +391,7 @@
             color: var(--text-color);
         }
 
-        .music-card button {
+        .music-card .favorite-btn {
             position: absolute;
             top: 5.6px;
             right: 5.6px;
@@ -405,12 +405,48 @@
             transition: var(--transition);
         }
 
-        .music-card button.liked {
+        .music-card .favorite-btn.liked {
             color: #ff0000;
         }
 
-        .music-card button:hover {
+        .music-card .favorite-btn:hover {
             color: var(--primary-color);
+            background: white;
+        }
+
+        .music-card .add-to-playlist-btn {
+            position: absolute;
+            bottom: 5.6px;
+            right: 5.6px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            color: var(--text-light);
+            font-size: 0.56rem;
+            padding: 0.28rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .music-card .add-to-playlist-btn:hover {
+            color: var(--primary-color);
+            background: white;
+        }
+
+        .music-card .remove-btn {
+            position: absolute;
+            top: 5.6px;
+            left: 5.6px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            color: var(--text-light);
+            font-size: 0.56rem;
+            padding: 0.28rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .music-card .remove-btn:hover {
+            color: #ff0000;
             background: white;
         }
 
@@ -753,6 +789,138 @@
         .changelog-item ul li.optimized::before { color: #ffc107; }
         .changelog-item ul li.bug::before { color: #dc3545; }
 
+        .playlists-container, .playlist-view {
+            max-width: 560px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 11.2px;
+            padding: 1.12rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(7px);
+        }
+
+        #create-playlist-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.56rem 1.12rem;
+            border: none;
+            border-radius: 28px;
+            font-size: 0.616rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1.12rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.28rem;
+        }
+
+        #create-playlist-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .playlist-card {
+            background: white;
+            border-radius: 8.4px;
+            padding: 0.84rem;
+            margin-bottom: 0.84rem;
+            display: flex;
+            align-items: center;
+            gap: 0.56rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .playlist-card:hover {
+            transform: translateY(-2.8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .playlist-img {
+            width: 33.6px;
+            height: 33.6px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .playlist-card h3 {
+            font-size: 0.728rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .playlist-card p {
+            font-size: 0.56rem;
+            color: var(--text-color);
+        }
+
+        .playlist-card .edit-pl, .playlist-card .delete-pl {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.616rem;
+            padding: 0.28rem;
+            transition: var(--transition);
+        }
+
+        .playlist-card .edit-pl {
+            margin-left: auto;
+        }
+
+        .playlist-card .edit-pl:hover {
+            color: var(--primary-color);
+        }
+
+        .playlist-card .delete-pl:hover {
+            color: #dc3545;
+        }
+
+        #back-to-playlists {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.616rem;
+            cursor: pointer;
+            margin-bottom: 0.84rem;
+            display: flex;
+            align-items: center;
+            gap: 0.28rem;
+        }
+
+        #back-to-playlists i {
+            font-size: 0.56rem;
+        }
+
+        #back-to-playlists:hover {
+            color: var(--secondary-color);
+        }
+
+        .playlist-view h2 {
+            font-size: 1.008rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.84rem;
+            display: flex;
+            align-items: center;
+            gap: 0.56rem;
+        }
+
+        #edit-playlist-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.728rem;
+            transition: var(--transition);
+        }
+
+        #edit-playlist-btn:hover {
+            color: var(--primary-color);
+        }
+
         @media (max-width: 768px) {
             .app-header {
                 padding: 0.56rem;
@@ -964,6 +1132,7 @@
                         <li data-tab="search-tab"><i class="fas fa-search"></i> <span>Search</span></li>
                         <li data-tab="favorites-tab"><i class="fas fa-heart"></i> <span>Favorites</span></li>
                         <li data-tab="history-tab"><i class="fas fa-history"></i> <span>History</span></li>
+                        <li data-tab="playlists-tab"><i class="fas fa-list-ul"></i> <span>Playlists</span></li>
                         <li data-tab="changelogs-tab"><i class="fas fa-clipboard-list"></i> <span>Changelogs</span></li>
                     </ul>
                 </nav>
@@ -1057,40 +1226,77 @@
                     </div>
                 </div>
 
+                <div id="playlists-tab" class="tab-content">
+                    <div class="playlists-container">
+                        <button id="create-playlist-btn"><i class="fas fa-plus"></i> Create New Playlist</button>
+                        <div id="playlists-list"></div>
+                    </div>
+                </div>
+
                 <div id="changelogs-tab" class="tab-content">
                     <div class="changelog-container">
                         <h2 class="changelog-title">Vayleno Updates</h2>
                         <div class="changelog-timeline">
                             <div class="changelog-item">
-                                <h3>Version 1.0.9</h3>
+                                <h3>Version 1.1.2</h3>
+                                <div class="date">October 20, 2025</div>
+                                <ul>
+                                    <li class="added">Moved playlist stats (Playlists Created, Songs in Playlists) to Playlists tab for better context</li>
+                                    <li class="optimized">Improved playlist view layout and button positioning</li>
+                                    <li class="fixed">Fixed real-time updates for playlist stats in Playlists tab for playlist and song changes</li>
+                                </ul>
+                            </div>
+                            <div class="changelog-item">
+                                <h3>Version 1.1.1</h3>
+                                <div class="date">October 18, 2025</div>
+                                <ul>
+                                    <li class="added">Added custom image upload for playlist covers (PNG, JPG, etc.)</li>
+                                    <li class="added">Added playlist editing (name and image)</li>
+                                    <li class="added">Introduced playlist stats (Playlists Created, Songs in Playlists) in Playlists tab</li>
+                                    <li class="fixed">Adjusted button positions for better UI consistency</li>
+                                    <li class="fixed">Corrected songs played count when removing from history</li>
+                                </ul>
+                            </div>
+                            <div class="changelog-item">
+                                <h3>Version 1.1.0</h3>
                                 <div class="date">October 16, 2025</div>
                                 <ul>
-                                    <li class="fixed">Fixed Pause Across All Tabs</li>
-                                    <li class="fixed">Fixed Favorite toggling next to pause button</li>
-                                    <li class="added">Added Dashboard Information To Track Your Music Experience</li>
-                                    <li class="fixed">Fixed Bugs</li>
-                                    <li class="optimized">Improved Vayleno</li>
+                                    <li class="added">Added playlist creation with custom names and icons</li>
+                                    <li class="added">Enabled adding songs to playlists from any tab</li>
+                                    <li class="added">Added ability to view, play, and remove songs from playlists</li>
+                                    <li class="added">Added playlist deletion functionality</li>
+                                    <li class="added">Enabled removing songs from history with real-time dashboard updates</li>
+                                </ul>
+                            </div>
+                            <div class="changelog-item">
+                                <h3>Version 1.0.9</h3>
+                                <div class="date">October 14, 2025</div>
+                                <ul>
+                                    <li class="fixed">Fixed pause functionality across all tabs</li>
+                                    <li class="fixed">Fixed favorite toggling issue in player controls</li>
+                                    <li class="added">Added dashboard stats for songs played, searched, and favorited</li>
+                                    <li class="optimized">Improved overall performance and UI responsiveness</li>
                                 </ul>
                             </div>
                             <div class="changelog-item">
                                 <h3>Version 1.0.4</h3>
                                 <div class="date">October 13, 2025</div>
                                 <ul>
-                                    <li class="added">Added Volume animation when you play with the volume</li>
-                                    <li class="added">Added more songs support for better music discovery</li>
+                                    <li class="added">Added volume animation for better user feedback</li>
+                                    <li class="added">Expanded song support for improved music discovery</li>
                                 </ul>
                             </div>
                             <div class="changelog-item">
                                 <h3>Version 1.0.0</h3>
                                 <div class="date">October 12, 2025</div>
                                 <ul>
-                                    <li class="added">Started Vayleno music player</li>
-                                    <li class="added">Added search to find and play music online</li>
-                                    <li class="added">Added tabs to see search, favorites, history, and updates</li>
-                                    <li class="added">Made a simple, purple design that looks nice</li>
-                                    <li class="fixed">Fixed the volume so it works right when you open the app</li>
-                                    <li class="optimized">Made music search quick and easy</li>
-                                    <li class="bug">Fixed a glitch where the song progress bar didn't show right at first</li>
+                                    <li class="added">Launched Vayleno music player</li>
+                                    <li class="added">Added search functionality to find and play music online</li>
+                                    <li class="added">Introduced tabs for search, favorites, history, and changelogs</li>
+                                    <li class="added">Implemented clean, purple-themed UI design</li>
+                                    <li class="fixed">Fixed initial volume settings on app load</li>
+                                    <li class="optimized">Optimized music search for speed and accuracy</li>
+                                    <li class="bug">Fixed progress bar display issue on initial load</li>
                                 </ul>
                             </div>
                         </div>
@@ -1169,6 +1375,7 @@
         let searchResultsData = [];
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let history = JSON.parse(localStorage.getItem('history')) || [];
+        let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
         let stats = JSON.parse(localStorage.getItem('musicStats')) || {
             songsPlayed: 0,
             songsSearched: 0,
@@ -1176,6 +1383,11 @@
         };
         let currentMode = 'dashboard';
         let currentSong = null;
+        let currentPlaylistId = null;
+
+        // Sync stats with data
+        stats.songsFavorited = favorites.length;
+        saveStats();
 
         function saveFavorites() {
             localStorage.setItem('favorites', JSON.stringify(favorites));
@@ -1188,6 +1400,10 @@
         function saveHistory() {
             localStorage.setItem('history', JSON.stringify(history));
             updateStatsDisplay();
+        }
+
+        function savePlaylists() {
+            localStorage.setItem('playlists', JSON.stringify(playlists));
         }
 
         function saveStats() {
@@ -1314,6 +1530,7 @@
             document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
             document.getElementById(tabId).classList.add('active');
             currentMode = tabId.replace('-tab', '');
+            currentPlaylistId = null;
             switch (currentMode) {
                 case 'search':
                     currentPlaylist = searchResultsData;
@@ -1326,6 +1543,17 @@
                 case 'history':
                     currentPlaylist = history;
                     renderHistory();
+                    break;
+                case 'playlists':
+                    const playlistsTab = document.getElementById('playlists-tab');
+                    playlistsTab.innerHTML = `
+                        <div class="playlists-container">
+                            <button id="create-playlist-btn"><i class="fas fa-plus"></i> Create New Playlist</button>
+                            <div id="playlists-list"></div>
+                        </div>
+                    `;
+                    renderPlaylists();
+                    document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
                     break;
                 case 'changelogs':
                 case 'disclaimer':
@@ -1429,7 +1657,7 @@
             updateSongInfo();
         }
 
-        function createMusicCard(song, index, source) {
+        function createMusicCard(song, index, source, removable = false) {
             const musicCard = document.createElement('div');
             musicCard.className = 'music-card';
             musicCard.dataset.videoId = song.videoId;
@@ -1443,12 +1671,45 @@
                 <button class="favorite-btn ${isFavorited(song.videoId) ? 'liked' : ''}">
                     <i class="fas fa-heart"></i>
                 </button>
+                <button class="add-to-playlist-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
             `;
             musicCard.addEventListener('click', () => playSong(index, source));
             musicCard.querySelector('.favorite-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleFavorite(song);
             });
+            musicCard.querySelector('.add-to-playlist-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                addToPlaylist(song);
+            });
+
+            if (removable) {
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (source === 'history') {
+                        history.splice(index, 1);
+                        stats.songsPlayed = Math.max(0, stats.songsPlayed - 1);
+                        saveHistory();
+                        saveStats();
+                        renderHistory();
+                        updateStatsDisplay();
+                    } else if (source === 'playlist') {
+                        const pl = playlists.find(p => p.id === currentPlaylistId);
+                        if (pl) {
+                            pl.songs.splice(index, 1);
+                            savePlaylists();
+                            viewPlaylist(currentPlaylistId);
+                        }
+                    }
+                });
+                musicCard.appendChild(removeBtn);
+            }
+
             return musicCard;
         }
 
@@ -1499,8 +1760,191 @@
             }
             historyResults.innerHTML = '';
             history.forEach((song, index) => {
-                historyResults.appendChild(createMusicCard(song, index, 'history'));
+                historyResults.appendChild(createMusicCard(song, index, 'history', true));
             });
+        }
+
+        function renderPlaylists() {
+            const list = document.getElementById('playlists-list');
+            if (!list) return;
+            list.innerHTML = '';
+            if (playlists.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list-ul"></i>
+                        <p>No playlists yet</p>
+                        <p>Create one to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'home-stats';
+            statsDiv.style.marginBottom = '1.12rem';
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <i class="fas fa-list-ul stat-icon"></i>
+                    <div class="stat-number">${playlists.length}</div>
+                    <div class="stat-label">Playlists Created</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-music stat-icon"></i>
+                    <div class="stat-number">${playlists.reduce((sum, p) => sum + p.songs.length, 0)}</div>
+                    <div class="stat-label">Songs in Playlists</div>
+                </div>
+            `;
+            list.appendChild(statsDiv);
+            playlists.forEach(pl => {
+                const card = document.createElement('div');
+                card.className = 'playlist-card';
+                card.innerHTML = `
+                    <img src="${pl.image || 'https://via.placeholder.com/28'}" class="playlist-img">
+                    <h3>${pl.name}</h3>
+                    <p>${pl.songs.length} songs</p>
+                    <button class="edit-pl"><i class="fas fa-edit"></i></button>
+                    <button class="delete-pl"><i class="fas fa-trash"></i></button>
+                `;
+                card.addEventListener('click', () => viewPlaylist(pl.id));
+                card.querySelector('.edit-pl').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    editPlaylist(pl.id);
+                });
+                card.querySelector('.delete-pl').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Delete playlist "${pl.name}"?`)) {
+                        playlists = playlists.filter(p => p.id !== pl.id);
+                        savePlaylists();
+                        renderPlaylists();
+                    }
+                });
+                list.appendChild(card);
+            });
+        }
+
+        function createPlaylist() {
+            const name = prompt('Enter playlist name:');
+            if (!name) return;
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                let image = 'https://via.placeholder.com/28';
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        image = ev.target.result;
+                        finalizeCreate(name, image);
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                }
+                finalizeCreate(name, image);
+            };
+            input.click();
+        }
+
+        function finalizeCreate(name, image) {
+            const newPlaylist = { id: Date.now(), name, image, songs: [] };
+            playlists.push(newPlaylist);
+            savePlaylists();
+            renderPlaylists();
+        }
+
+        function editPlaylist(id) {
+            const pl = playlists.find(p => p.id === id);
+            if (!pl) return;
+            const newName = prompt('Enter new playlist name:', pl.name);
+            if (newName === null) return;
+            if (newName) pl.name = newName;
+            const changeImage = confirm('Change playlist image?');
+            if (changeImage) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                            pl.image = ev.target.result;
+                            finalizeEdit(id);
+                        };
+                        reader.readAsDataURL(file);
+                        return;
+                    }
+                    finalizeEdit(id);
+                };
+                input.click();
+            } else {
+                finalizeEdit(id);
+            }
+        }
+
+        function finalizeEdit(id) {
+            savePlaylists();
+            if (currentPlaylistId === id) {
+                viewPlaylist(id);
+            } else {
+                renderPlaylists();
+            }
+        }
+
+        function viewPlaylist(id) {
+            const pl = playlists.find(p => p.id === id);
+            if (!pl) return;
+            currentPlaylist = pl.songs;
+            currentMode = 'playlist';
+            currentPlaylistId = id;
+            const tab = document.getElementById('playlists-tab');
+            tab.innerHTML = `
+                <div class="playlist-view">
+                    <button id="back-to-playlists"><i class="fas fa-arrow-left"></i> Back to Playlists</button>
+                    <h2><img src="${pl.image || 'https://via.placeholder.com/28'}" class="playlist-img" style="margin-right: 0.56rem;"> ${pl.name} <button id="edit-playlist-btn"><i class="fas fa-edit"></i></button></h2>
+                    <div id="playlist-songs" class="search-results"></div>
+                </div>
+            `;
+            document.getElementById('back-to-playlists').addEventListener('click', () => switchTab('playlists-tab'));
+            document.getElementById('edit-playlist-btn').addEventListener('click', () => editPlaylist(id));
+            const songsDiv = document.getElementById('playlist-songs');
+            if (pl.songs.length === 0) {
+                songsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-music"></i>
+                        <p>No songs in this playlist</p>
+                        <p>Add songs from search or other tabs</p>
+                    </div>
+                `;
+                return;
+            }
+            pl.songs.forEach((song, index) => {
+                songsDiv.appendChild(createMusicCard(song, index, 'playlist', true));
+            });
+        }
+
+        function addToPlaylist(song) {
+            if (playlists.length === 0) {
+                alert('No playlists available. Create one first in the Playlists tab.');
+                return;
+            }
+            const plNames = playlists.map(p => p.name).join(', ');
+            const choice = prompt(`Enter the name of the playlist to add to (available: ${plNames}):`);
+            if (!choice) return;
+            const pl = playlists.find(p => p.name.toLowerCase() === choice.toLowerCase());
+            if (!pl) {
+                alert('Playlist not found.');
+                return;
+            }
+            if (pl.songs.some(s => s.videoId === song.videoId)) {
+                alert('Song is already in this playlist.');
+                return;
+            }
+            pl.songs.push(song);
+            savePlaylists();
+            if (currentMode === 'playlist' && currentPlaylistId === pl.id) {
+                viewPlaylist(pl.id);
+            }
+            alert('Song added to playlist!');
         }
 
         async function searchMusic(query) {
