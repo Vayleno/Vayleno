@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milky's Decentralized Forum</title>
+  <title>Milky's Forum</title>
   <style>
     * {
       margin: 0;
@@ -39,6 +39,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Auth Section */
     #auth-section {
       background: white;
       padding: 40px;
@@ -87,23 +88,13 @@
       transform: translateY(-2px);
     }
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
     .error {
       color: red;
       text-align: center;
       margin-top: 10px;
     }
 
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 10px;
-    }
-
+    /* Forum Section */
     #forum-section {
       display: none;
     }
@@ -133,6 +124,21 @@
       background: #ff5252;
     }
 
+    /* Peer Connection */
+    .peer-connect {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .peer-connect input {
+      width: 70%;
+      margin-right: 10px;
+    }
+
+    /* Create Thread */
     .create-thread {
       background: white;
       padding: 20px;
@@ -146,6 +152,7 @@
       resize: vertical;
     }
 
+    /* Thread List */
     .thread {
       background: white;
       padding: 20px;
@@ -191,29 +198,7 @@
       background: #ff5252;
     }
 
-    .reply-section {
-      margin-top: 15px;
-      padding-left: 20px;
-      border-left: 2px solid #ddd;
-    }
-
-    .reply-form {
-      display: none;
-      margin-top: 10px;
-    }
-
-    .reply-form textarea {
-      width: 100%;
-      min-height: 60px;
-    }
-
-    .reply {
-      margin-top: 10px;
-      padding: 10px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
+    /* Icons */
     .verified-icon {
       display: inline-block;
       width: 16px;
@@ -239,7 +224,7 @@
         font-size: 1.8em;
       }
 
-      #auth-section, .thread, .create-thread, header {
+      #auth-section, .thread, .create-thread, header, .peer-connect {
         padding: 15px;
       }
     }
@@ -249,7 +234,7 @@
   <div class="container">
     <!-- Auth Section -->
     <div id="auth-section">
-      <h1>Welcome to Milky's Decentralized Forum</h1>
+      <h1>Welcome to Milky's Forum</h1>
       <div id="auth-form">
         <input type="text" id="username" placeholder="Username" required>
         <input type="password" id="password" placeholder="Password" required>
@@ -260,14 +245,21 @@
     </div>
 
     <!-- Forum Section -->
-    <div id="forum-section">
+    <div id="forum-section" style="display: none;">
       <header>
-        <h1>Milky's Decentralized Forum</h1>
+        <h1>Milky's Forum</h1>
         <div class="user-info">
           <span id="current-user"></span>
           <button id="logout-btn">Log Out</button>
         </div>
       </header>
+
+      <!-- Peer Connection -->
+      <div class="peer-connect">
+        <p>Your Peer ID: <span id="peer-id">Not connected</span></p>
+        <input type="text" id="remote-peer-id" placeholder="Enter friend's Peer ID">
+        <button id="connect-peer-btn">Connect to Peer</button>
+      </div>
 
       <!-- Create Thread -->
       <div class="create-thread">
@@ -282,38 +274,12 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/ipfs@0.62.0/dist/index.min.js"></script>
+  <script src="https://unpkg.com/simple-peer@9.11.0/simple-peer.min.js"></script>
   <script>
-    // IPFS Setup
-    let ipfs = null;
-    let ipnsKey = null;
-    const IPNS_POLL_INTERVAL = 5000; // Poll every 5 seconds
-    const FORUM_IPNS_KEY = 'milky-forum-ipns'; // Unique key for this forum
-
-    async function initIPFS() {
-      try {
-        ipfs = await Ipfs.create({ repo: 'milky-forum-' + Math.random() });
-        console.log('IPFS node initialized');
-        const keys = await ipfs.key.list();
-        ipnsKey = keys.find(key => key.name === FORUM_IPNS_KEY);
-        if (!ipnsKey) {
-          ipnsKey = await ipfs.key.gen(FORUM_IPNS_KEY, { type: 'rsa', size: 2048 });
-        }
-        console.log('IPNS key:', ipnsKey.id);
-        document.getElementById('auth-error').textContent = `Share this IPNS hash: /ipns/${ipnsKey.id}`;
-        document.getElementById('auth-error').className = 'success';
-        startPolling();
-      } catch (err) {
-        console.error('IPFS initialization failed:', err);
-        document.getElementById('auth-error').textContent = 'Failed to initialize IPFS';
-        document.getElementById('auth-error').className = 'error';
-      }
-    }
-
     // IndexedDB Setup
     function initDB() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open('forumDB', 5);
+        const request = indexedDB.open('forumDB', 2); // Updated version
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
           if (!db.objectStoreNames.contains('users')) {
@@ -321,9 +287,6 @@
           }
           if (!db.objectStoreNames.contains('threads')) {
             db.createObjectStore('threads', { keyPath: 'id' });
-          }
-          if (!db.objectStoreNames.contains('replies')) {
-            db.createObjectStore('replies', { keyPath: 'id' });
           }
         };
         request.onsuccess = () => resolve(request.result);
@@ -351,6 +314,7 @@
         isAdmin: username.toLowerCase() === 'milky'
       };
 
+      // Check if username exists
       return new Promise((resolve, reject) => {
         const checkRequest = store.get(username);
         checkRequest.onsuccess = () => {
@@ -359,7 +323,7 @@
           } else {
             const putRequest = store.put(user);
             putRequest.onsuccess = () => {
-              console.log(`User ${username} registered, isAdmin: ${user.isAdmin}`);
+              console.log(`User ${username} registered successfully`);
               resolve(true);
             };
             putRequest.onerror = () => reject('Failed to register user');
@@ -381,7 +345,7 @@
         request.onsuccess = () => {
           const user = request.result;
           if (user && user.password === hashedPassword) {
-            console.log(`User ${username} logged in, isAdmin: ${user.isAdmin}`);
+            console.log(`User ${username} logged in successfully`);
             resolve(user);
           } else {
             reject('Invalid username or password');
@@ -391,137 +355,27 @@
       });
     }
 
-    async function autoLogin() {
-      const username = localStorage.getItem('currentUser');
-      if (username) {
-        const db = await initDB();
-        const tx = db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        return new Promise((resolve, reject) => {
-          const request = store.get(username);
-          request.onsuccess = () => {
-            const user = request.result;
-            if (user) {
-              currentUser = user;
-              document.getElementById('auth-section').style.display = 'none';
-              document.getElementById('forum-section').style.display = 'block';
-              document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
-              renderThreads();
-              resolve(user);
-            } else {
-              localStorage.removeItem('currentUser');
-              reject('User not found');
-            }
-          };
-          request.onerror = () => reject('Auto-login error');
-        });
-      }
-      return Promise.reject('No user logged in');
-    }
-
-    // IPFS Functions
-    async function publishToIPFS(data) {
-      const content = JSON.stringify(data);
-      const cid = await ipfs.add(content);
-      const ipnsEntry = await ipfs.name.publish(cid.path, { key: FORUM_IPNS_KEY });
-      console.log('Published to IPNS:', ipnsEntry.name);
-      return ipnsEntry.name;
-    }
-
-    async function fetchFromIPFS(ipnsHash) {
-      try {
-        const resolved = await ipfs.name.resolve(`/ipns/${ipnsHash}`);
-        const content = await ipfs.cat(resolved.path);
-        let data = '';
-        for await (const chunk of content) {
-          data += new TextDecoder().decode(chunk);
-        }
-        return JSON.parse(data);
-      } catch (err) {
-        console.error('Failed to fetch from IPFS:', err);
-        return null;
-      }
-    }
-
-    async function syncWithIPFS() {
-      if (!ipnsKey) return;
-      const remoteData = await fetchFromIPFS(ipnsKey.id);
-      if (remoteData) {
-        const db = await initDB();
-        const tx = db.transaction(['threads', 'replies'], 'readwrite');
-        const threadStore = tx.objectStore('threads');
-        const replyStore = tx.objectStore('replies');
-
-        for (const thread of remoteData.threads) {
-          await new Promise(resolve => {
-            threadStore.put(thread).onsuccess = resolve;
-          });
-        }
-        for (const reply of remoteData.replies) {
-          await new Promise(resolve => {
-            replyStore.put(reply).onsuccess = resolve;
-          });
-        }
-        await renderThreads();
-      }
-    }
-
-    function startPolling() {
-      setInterval(syncWithIPFS, IPNS_POLL_INTERVAL);
-    }
-
-    // Thread and Reply Functions
+    // Thread Functions
     async function saveThread(thread) {
       const db = await initDB();
       const tx = db.transaction(['threads'], 'readwrite');
       const store = tx.objectStore('threads');
-      await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const request = store.put(thread);
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
       });
-      await publishForumState();
-    }
-
-    async function saveReply(reply) {
-      const db = await initDB();
-      const tx = db.transaction(['replies'], 'readwrite');
-      const store = tx.objectStore('replies');
-      await new Promise((resolve, reject) => {
-        const request = store.put(reply);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
-      await publishForumState();
     }
 
     async function deleteThread(threadId) {
       const db = await initDB();
-      const tx = db.transaction(['threads', 'replies'], 'readwrite');
-      const threadStore = tx.objectStore('threads');
-      const replyStore = tx.objectStore('replies');
-
-      await new Promise((resolve, reject) => {
-        const request = threadStore.delete(threadId);
+      const tx = db.transaction(['threads'], 'readwrite');
+      const store = tx.objectStore('threads');
+      return new Promise((resolve, reject) => {
+        const request = store.delete(threadId);
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
       });
-
-      const replies = await getReplies(threadId);
-      for (const reply of replies) {
-        await new Promise((resolve, reject) => {
-          const request = replyStore.delete(reply.id);
-          request.onsuccess = () => resolve();
-          request.onerror = () => reject(request.error);
-        });
-      }
-      await publishForumState();
-    }
-
-    async function publishForumState() {
-      const threads = await getAllThreads();
-      const replies = await getAllReplies();
-      await publishToIPFS({ threads, replies });
     }
 
     async function getAllThreads() {
@@ -535,38 +389,14 @@
       });
     }
 
-    async function getReplies(threadId) {
-      const db = await initDB();
-      const tx = db.transaction(['replies'], 'readonly');
-      const store = tx.objectStore('replies');
-      const replies = await new Promise((resolve, reject) => {
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-      return replies.filter(reply => reply.threadId === threadId);
-    }
-
-    async function getAllReplies() {
-      const db = await initDB();
-      const tx = db.transaction(['replies'], 'readonly');
-      const store = tx.objectStore('replies');
-      return new Promise((resolve, reject) => {
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // Render Threads and Replies
+    // Render Threads
     async function renderThreads() {
       const threads = await getAllThreads();
       const threadList = document.getElementById('thread-list');
       threadList.innerHTML = '';
-      for (const thread of threads) {
+      threads.forEach(thread => {
         const threadEl = document.createElement('div');
         threadEl.className = 'thread';
-        const canReply = currentUser && currentUser.username.toLowerCase() !== thread.username.toLowerCase();
         threadEl.innerHTML = `
           <div class="thread-meta">
             <span>${thread.username}${thread.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
@@ -576,78 +406,92 @@
           <p>${thread.content}</p>
           ${thread.image ? `<img src="${thread.image}" alt="Thread Image">` : ''}
           ${currentUser && currentUser.isAdmin ? `<button class="delete-btn" data-id="${thread.id}">Delete</button>` : ''}
-          <button class="reply-btn" data-id="${thread.id}" ${!canReply ? 'disabled' : ''}>${canReply ? 'Reply' : 'Cannot reply to own thread'}</button>
-          <div class="reply-form" id="reply-form-${thread.id}" style="display: none;">
-            <textarea id="reply-content-${thread.id}" placeholder="Write your reply..."></textarea>
-            <button class="submit-reply" data-id="${thread.id}">Submit Reply</button>
-          </div>
-          <div class="reply-section" id="replies-${thread.id}"></div>
         `;
         threadList.appendChild(threadEl);
+      });
 
-        const replies = await getReplies(thread.id);
-        const replySection = threadEl.querySelector(`#replies-${thread.id}`);
-        for (const reply of replies) {
-          const replyEl = document.createElement('div');
-          replyEl.className = 'reply';
-          replyEl.innerHTML = `
-            <div class="thread-meta">
-              <span>${reply.username}${reply.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
-              <span>${new Date(reply.timestamp).toLocaleString()}</span>
-            </div>
-            <p>${reply.content}</p>
-          `;
-          replySection.appendChild(replyEl);
-        }
-      }
-
+      // Add delete event listeners
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.style.display = currentUser && currentUser.isAdmin ? 'block' : 'none';
         btn.addEventListener('click', async () => {
           const threadId = btn.dataset.id;
           await deleteThread(threadId);
-          await renderThreads();
-        });
-      });
-
-      document.querySelectorAll('.reply-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const threadId = btn.dataset.id;
-          const replyForm = document.getElementById(`reply-form-${threadId}`);
-          replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-        });
-      });
-
-      document.querySelectorAll('.submit-reply').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const threadId = btn.dataset.id;
-          const content = document.getElementById(`reply-content-${threadId}`).value.trim();
-          if (content) {
-            const thread = (await getAllThreads()).find(t => t.id === threadId);
-            if (thread.username.toLowerCase() === currentUser.username.toLowerCase()) {
-              document.getElementById('auth-error').textContent = 'Cannot reply to your own thread';
-              document.getElementById('auth-error').className = 'error';
-              return;
-            }
-            const reply = {
-              id: crypto.randomUUID(),
-              threadId,
-              username: currentUser.username,
-              content,
-              timestamp: Date.now()
-            };
-            await saveReply(reply);
-            document.getElementById(`reply-content-${threadId}`).value = '';
-            document.getElementById(`reply-form-${threadId}`).style.display = 'none';
-            await renderThreads();
-          }
+          broadcastDelete(threadId);
+          renderThreads();
         });
       });
     }
 
-    // Event Listeners
+    // WebRTC Peer Connection
+    let peer = null;
     let currentUser = null;
+    const peers = [];
 
+    function initPeer() {
+      peer = new SimplePeer({ initiator: true, trickle: false });
+      peer.on('error', err => console.error('Peer error:', err));
+      peer.on('signal', data => {
+        document.getElementById('peer-id').textContent = JSON.stringify(data);
+      });
+      peer.on('connect', () => {
+        console.log('Peer connected');
+        peers.push(peer);
+      });
+      peer.on('data', async data => {
+        try {
+          const message = JSON.parse(data);
+          if (message.type === 'thread') {
+            await saveThread(message.thread);
+            renderThreads();
+          } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
+            await deleteThread(message.threadId);
+            renderThreads();
+          }
+        } catch (err) {
+          console.error('Error processing peer data:', err);
+        }
+      });
+    }
+
+    function connectToPeer(remoteId) {
+      const newPeer = new SimplePeer({ trickle: false });
+      newPeer.on('error', err => console.error('Peer error:', err));
+      newPeer.on('connect', () => {
+        console.log('Connected to remote peer');
+        peers.push(newPeer);
+      });
+      newPeer.on('data', async data => {
+        try {
+          const message = JSON.parse(data);
+          if (message.type === 'thread') {
+            await saveThread(message.thread);
+            renderThreads();
+          } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
+            await deleteThread(message.threadId);
+            renderThreads();
+          }
+        } catch (err) {
+          console.error('Error processing peer data:', err);
+        }
+      });
+      try {
+        newPeer.signal(JSON.parse(remoteId));
+      } catch (err) {
+        document.getElementById('auth-error').textContent = 'Invalid Peer ID';
+      }
+    }
+
+    function broadcastThread(thread) {
+      const message = { type: 'thread', thread };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    function broadcastDelete(threadId) {
+      const message = { type: 'delete', threadId };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    // Event Listeners
     document.getElementById('signup-btn').addEventListener('click', async () => {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
@@ -656,12 +500,12 @@
       try {
         await signup(username, password);
         errorEl.textContent = 'Signed up successfully! Please log in.';
-        errorEl.className = 'success';
+        errorEl.style.color = 'green';
         document.getElementById('username').value = '';
         document.getElementById('password').value = '';
       } catch (err) {
         errorEl.textContent = err.message || 'Sign-up failed';
-        errorEl.className = 'error';
+        errorEl.style.color = 'red';
       }
     });
 
@@ -672,28 +516,36 @@
       errorEl.textContent = '';
       try {
         currentUser = await login(username, password);
-        localStorage.setItem('currentUser', username);
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('forum-section').style.display = 'block';
         document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
-        await renderThreads();
-        errorEl.textContent = 'Logged in successfully';
-        errorEl.className = 'success';
+        initPeer();
+        renderThreads();
       } catch (err) {
         errorEl.textContent = err.message || 'Login failed';
-        errorEl.className = 'error';
+        errorEl.style.color = 'red';
       }
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       currentUser = null;
-      localStorage.removeItem('currentUser');
       document.getElementById('auth-section').style.display = 'block';
       document.getElementById('forum-section').style.display = 'none';
       document.getElementById('username').value = '';
       document.getElementById('password').value = '';
       document.getElementById('auth-error').textContent = '';
-      document.getElementById('thread-list').innerHTML = '';
+      peers.forEach(p => p.destroy());
+      peers.length = 0;
+      if (peer) peer.destroy();
+    });
+
+    document.getElementById('connect-peer-btn').addEventListener('click', () => {
+      const remoteId = document.getElementById('remote-peer-id').value;
+      if (remoteId) {
+        connectToPeer(remoteId);
+      } else {
+        document.getElementById('auth-error').textContent = 'Please enter a Peer ID';
+      }
     });
 
     document.getElementById('create-thread-btn').addEventListener('click', async () => {
@@ -703,11 +555,6 @@
       let image = null;
 
       if (imageInput.files[0]) {
-        if (imageInput.files[0].size > 2 * 1024 * 1024) {
-          document.getElementById('auth-error').textContent = 'Image size must be under 2MB';
-          document.getElementById('auth-error').className = 'error';
-          return;
-        }
         image = await new Promise(resolve => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result);
@@ -725,33 +572,18 @@
           timestamp: Date.now()
         };
         await saveThread(thread);
-        await renderThreads();
+        broadcastThread(thread);
+        renderThreads();
         document.getElementById('thread-title').value = '';
         document.getElementById('thread-content').value = '';
         imageInput.value = '';
-        document.getElementById('auth-error').textContent = 'Thread posted successfully';
-        document.getElementById('auth-error').className = 'success';
       } else {
         document.getElementById('auth-error').textContent = 'Title and content are required';
-        document.getElementById('auth-error').className = 'error';
       }
     });
 
-    // Initialize
-    initDB().then(async () => {
-      try {
-        await autoLogin();
-      } catch (err) {
-        console.log('No auto-login:', err);
-        document.getElementById('auth-section').style.display = 'block';
-        document.getElementById('forum-section').style.display = 'none';
-      }
-      await initIPFS();
-    }).catch(err => {
-      console.error('Initialization failed:', err);
-      document.getElementById('auth-error').textContent = 'Failed to initialize';
-      document.getElementById('auth-error').className = 'error';
-    });
+    // Initialize DB on load
+    initDB().catch(err => console.error('DB initialization failed:', err));
   </script>
 </body>
 </html>
