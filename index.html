@@ -98,7 +98,7 @@
             background: var(--secondary-color);
         }
 
-        .forum-list, .chat-section, .announcement, .users-section, .private-chat {
+        .forum-list, .announcement, .users-section, .private-chat {
             margin-bottom: 20px;
         }
 
@@ -185,14 +185,6 @@
                 <div id="forums-container"></div>
             </div>
 
-            <!-- Public Chat Section -->
-            <div class="chat-section">
-                <h3>Public Chat</h3>
-                <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #2c2c2c; padding: 10px; border-radius: var(--border-radius);"></div>
-                <input id="chat-input" type="text" placeholder="Type a message...">
-                <button id="send-chat-btn">Send</button>
-            </div>
-
             <!-- Users Section for Private Chats and Ban -->
             <div class="users-section">
                 <h3>Users</h3>
@@ -217,7 +209,6 @@
             USERS: 'forum_users',
             SESSION: 'forum_session',
             FORUMS: 'forum_forums',
-            PUBLIC_CHAT: 'forum_public_chat',
             PRIVATE_CHATS: 'forum_private_chats',
             ANNOUNCEMENT: 'forum_announcement',
             BANNED: 'forum_banned'
@@ -231,9 +222,6 @@
         }
         if (!localStorage.getItem(STORAGE_KEYS.FORUMS)) {
             localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify([]));
-        }
-        if (!localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT)) {
-            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify([]));
         }
         if (!localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS)) {
             localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify({}));
@@ -259,9 +247,6 @@
         const forumContentInput = document.getElementById('forum-content');
         const createForumBtn = document.getElementById('create-forum-btn');
         const forumsContainer = document.getElementById('forums-container');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const sendChatBtn = document.getElementById('send-chat-btn');
         const announcementText = document.getElementById('announcement-text');
         const userSearch = document.getElementById('user-search');
         const usersList = document.getElementById('users-list');
@@ -301,7 +286,6 @@
             mainSection.classList.remove('hidden');
             currentUserSpan.innerHTML = `${username}${username === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}`;
             loadForums();
-            loadPublicChat();
             loadUsers();
             announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
             if (username === ADMIN_USER) {
@@ -333,12 +317,12 @@
             }
             users.push({ username, password });
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-            authMessage.textContent = 'Signed up successfully. Now login.';
+            login(username, password);
         }
 
-        function login() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
+        function login(inputUsername = null, inputPassword = null) {
+            const username = inputUsername || usernameInput.value.trim();
+            const password = inputPassword || passwordInput.value.trim();
             if (!username || !password) {
                 authMessage.textContent = 'Please enter username and password.';
                 return;
@@ -441,43 +425,6 @@
             loadForums();
         }
 
-        // Public Chat functions
-        function sendPublicChat() {
-            const content = chatInput.value.trim();
-            if (!content) return;
-            const username = getCurrentUser();
-            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT));
-            const id = Date.now();
-            chat.push({ id, content, author: username, timestamp: new Date().toISOString() });
-            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify(chat));
-            chatInput.value = '';
-            loadPublicChat();
-        }
-
-        function loadPublicChat() {
-            chatMessages.innerHTML = '';
-            const chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT));
-            const currentUser = getCurrentUser();
-            const isAdmin = currentUser === ADMIN_USER;
-            chat.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.classList.add('chat-message');
-                msgDiv.innerHTML = `
-                    <p>${msg.content} - by ${msg.author}${msg.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} at ${new Date(msg.timestamp).toLocaleTimeString()}</p>
-                    ${isAdmin ? `<button class="delete-btn" onclick="deletePublicChat(${msg.id})">Delete</button>` : ''}
-                `;
-                chatMessages.appendChild(msgDiv);
-            });
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function deletePublicChat(id) {
-            if (!confirm('Delete message?')) return;
-            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT)).filter(m => m.id !== id);
-            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify(chat));
-            loadPublicChat();
-        }
-
         // Users and Ban
         function loadUsers(query = '') {
             usersList.innerHTML = '';
@@ -493,6 +440,7 @@
                     <p>${user.username}${banned.includes(user.username) ? ' (Banned)' : ''}</p>
                     <button class="chat-btn">Chat</button>
                     ${isAdmin && !banned.includes(user.username) ? `<button class="ban-btn" onclick="banUser('${user.username}')">Ban</button>` : ''}
+                    ${isAdmin && banned.includes(user.username) ? `<button class="ban-btn" onclick="unbanUser('${user.username}')">Unban</button>` : ''}
                 `;
                 const chatBtn = userCard.querySelector('.chat-btn');
                 chatBtn.onclick = () => openPrivateChat(user.username);
@@ -509,6 +457,15 @@
                     localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
                     loadUsers(userSearch.value.trim());
                 }
+            }
+        }
+
+        function unbanUser(username) {
+            if (getCurrentUser() !== ADMIN_USER) return;
+            if (confirm(`Unban ${username}?`)) {
+                let banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED)).filter(u => u !== username);
+                localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
+                loadUsers(userSearch.value.trim());
             }
         }
 
@@ -581,8 +538,6 @@
         window.addEventListener('storage', (event) => {
             if (event.key === STORAGE_KEYS.FORUMS) {
                 loadForums();
-            } else if (event.key === STORAGE_KEYS.PUBLIC_CHAT) {
-                loadPublicChat();
             } else if (event.key === STORAGE_KEYS.PRIVATE_CHATS) {
                 loadPrivateMessages();
             } else if (event.key === STORAGE_KEYS.ANNOUNCEMENT) {
@@ -597,7 +552,6 @@
         signupBtn.onclick = signup;
         logoutBtn.onclick = logout;
         createForumBtn.onclick = createForum;
-        sendChatBtn.onclick = sendPublicChat;
         userSearch.oninput = () => loadUsers(userSearch.value.trim());
         sendPrivateBtn.onclick = sendPrivateMessage;
         closePrivateBtn.onclick = closePrivateChat;
