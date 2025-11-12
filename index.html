@@ -88,6 +88,11 @@
       transform: translateY(-2px);
     }
 
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
     .error {
       color: red;
       text-align: center;
@@ -228,31 +233,6 @@
       border-radius: 8px;
     }
 
-    /* Reactions */
-    .reactions {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .reaction-btn {
-      background: none;
-      border: 1px solid #ddd;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-
-    .reaction-btn:hover {
-      background: #f0f0f0;
-    }
-
-    .reaction-btn.active {
-      background: #e0e0e0;
-    }
-
     /* Icons */
     .verified-icon {
       display: inline-block;
@@ -300,7 +280,7 @@
     </div>
 
     <!-- Forum Section -->
-    <div id="forum-section" style="display: none;">
+    <div id="forum-section">
       <header>
         <h1>Milky's Forum</h1>
         <div class="user-info">
@@ -334,7 +314,7 @@
     // IndexedDB Setup
     function initDB() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open('forumDB', 3); // Updated version
+        const request = indexedDB.open('forumDB', 4);
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
           if (!db.objectStoreNames.contains('users')) {
@@ -369,7 +349,7 @@
       const user = {
         username,
         password: hashedPassword,
-        isAdmin: username.toLowerCase() === 'milky' // Only "milky" is admin
+        isAdmin: username.toLowerCase() === 'milky'
       };
 
       return new Promise((resolve, reject) => {
@@ -380,7 +360,7 @@
           } else {
             const putRequest = store.put(user);
             putRequest.onsuccess = () => {
-              console.log(`User ${username} registered successfully, isAdmin: ${user.isAdmin}`);
+              console.log(`User ${username} registered, isAdmin: ${user.isAdmin}`);
               resolve(true);
             };
             putRequest.onerror = () => reject('Failed to register user');
@@ -402,7 +382,7 @@
         request.onsuccess = () => {
           const user = request.result;
           if (user && user.password === hashedPassword) {
-            console.log(`User ${username} logged in successfully, isAdmin: ${user.isAdmin}`);
+            console.log(`User ${username} logged in, isAdmin: ${user.isAdmin}`);
             resolve(user);
           } else {
             reject('Invalid username or password');
@@ -410,6 +390,35 @@
         };
         request.onerror = () => reject('Login error');
       });
+    }
+
+    async function autoLogin() {
+      const username = localStorage.getItem('currentUser');
+      if (username) {
+        const db = await initDB();
+        const tx = db.transaction(['users'], 'readonly');
+        const store = tx.objectStore('users');
+        return new Promise((resolve, reject) => {
+          const request = store.get(username);
+          request.onsuccess = () => {
+            const user = request.result;
+            if (user) {
+              currentUser = user;
+              document.getElementById('auth-section').style.display = 'none';
+              document.getElementById('forum-section').style.display = 'block';
+              document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
+              initPeer();
+              renderThreads();
+              resolve(user);
+            } else {
+              localStorage.removeItem('currentUser');
+              reject('User not found');
+            }
+          };
+          request.onerror = () => reject('Auto-login error');
+        });
+      }
+      return Promise.reject('No user logged in');
     }
 
     // Thread and Reply Functions
@@ -441,14 +450,12 @@
       const threadStore = tx.objectStore('threads');
       const replyStore = tx.objectStore('replies');
       
-      // Delete thread
       await new Promise((resolve, reject) => {
         const request = threadStore.delete(threadId);
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
       });
 
-      // Delete associated replies
       const replies = await getReplies(threadId);
       for (const reply of replies) {
         await new Promise((resolve, reject) => {
@@ -482,62 +489,15 @@
       return replies.filter(reply => reply.threadId === threadId);
     }
 
-    // Reaction Functions
-    async function updateReaction(itemId, type, username, isReply = false) {
-      const db = await initDB();
-      const storeName = isReply ? 'replies' : 'threads';
-      const tx = db.transaction([storeName], 'readwrite');
-      const store = tx.objectStore(storeName);
-      
-      return new Promise((resolve, reject) => {
-        const request = store.get(itemId);
-        request.onsuccess = () => {
-          const item = request.result || { id: itemId, reactions: {} };
-          item.reactions = item.reactions || { like: 0, love: 0, wow: 0 };
-          item.userReactions = item.userReactions || {};
-
-          // Remove previous reaction by this user
-          if (item.userReactions[username]) {
-            const prevReaction = itemIrc(item.userReactions[username]);
-            item.reactions[prevReaction]--;
-            delete item.userReactions[username];
-          }
-
-          // Add new reaction
-          if (type) {
-            item.reactions[type] = (item.reactions[type] || 0) + 1;
-            item.userReactions[username] = type;
-          }
-
-          const updateRequest = store.put(item);
-          updateRequest.onsuccess = () => resolve(item);
-          updateRequest.onerror = () => reject(request.error);
-        };
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function getReaction(itemId, isReply = false) {
-      const db = await initDB();
-      const storeName = isReply ? 'replies' : 'threads';
-      const tx = db.transaction([storeName], 'readonly');
-      const store = tx.objectStore(storeName);
-      return new Promise((resolve, reject) => {
-        const request = store.get(itemId);
-        request.onsuccess = () => resolve(request.result || { reactions: { like: 0, love: 0, wow: 0 }, userReactions: {} });
-        request.onerror = () => reject(request.error);
-      });
-    }
-
     // Render Threads and Replies
     async function renderThreads() {
       const threads = await getAllThreads();
       const threadList = document.getElementById('thread-list');
       threadList.innerHTML = '';
       for (const thread of threads) {
-        const threadReaction = await getReaction(thread.id);
         const threadEl = document.createElement('div');
         threadEl.className = 'thread';
+        const canReply = currentUser && currentUser.username.toLowerCase() !== thread.username.toLowerCase();
         threadEl.innerHTML = `
           <div class="thread-meta">
             <span>${thread.username}${thread.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
@@ -546,13 +506,8 @@
           <h3>${thread.title}</h3>
           <p>${thread.content}</p>
           ${thread.image ? `<img src="${thread.image}" alt="Thread Image">` : ''}
-          <div class="reactions">
-            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'like' ? 'active' : ''}" data-id="${thread.id}" data-type="like">👍 Like (${threadReaction.reactions.like || 0})</button>
-            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'love' ? 'active' : ''}" data-id="${thread.id}" data-type="love">❤️ Love (${threadReaction.reactions.love || 0})</button>
-            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'wow' ? 'active' : ''}" data-id="${thread.id}" data-type="wow">😮 Wow (${threadReaction.reactions.wow || 0})</button>
-          </div>
           ${currentUser && currentUser.isAdmin ? `<button class="delete-btn" data-id="${thread.id}">Delete</button>` : ''}
-          <button class="reply-btn" data-id="${thread.id}">Reply</button>
+          <button class="reply-btn" data-id="${thread.id}" ${!canReply ? 'disabled' : ''}>${canReply ? 'Reply' : 'Cannot reply to own thread'}</button>
           <div class="reply-form" id="reply-form-${thread.id}" style="display: none;">
             <textarea id="reply-content-${thread.id}" placeholder="Write your reply..."></textarea>
             <button class="submit-reply" data-id="${thread.id}">Submit Reply</button>
@@ -561,11 +516,9 @@
         `;
         threadList.appendChild(threadEl);
 
-        // Render replies
         const replies = await getReplies(thread.id);
         const replySection = threadEl.querySelector(`#replies-${thread.id}`);
         for (const reply of replies) {
-          const replyReaction = await getReaction(reply.id, true);
           const replyEl = document.createElement('div');
           replyEl.className = 'reply';
           replyEl.innerHTML = `
@@ -574,17 +527,11 @@
               <span>${new Date(reply.timestamp).toLocaleString()}</span>
             </div>
             <p>${reply.content}</p>
-            <div class="reactions">
-              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'like' ? 'active' : ''}" data-id="${reply.id}" data-type="like" data-reply="true">👍 Like (${replyReaction.reactions.like || 0})</button>
-              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'love' ? 'active' : ''}" data-id="${reply.id}" data-type="love" data-reply="true">❤️ Love (${replyReaction.reactions.love || 0})</button>
-              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'wow' ? 'active' : ''}" data-id="${reply.id}" data-type="wow" data-reply="true">😮 Wow (${replyReaction.reactions.wow || 0})</button>
-            </div>
           `;
           replySection.appendChild(replyEl);
         }
       }
 
-      // Add event listeners
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.style.display = currentUser && currentUser.isAdmin ? 'block' : 'none';
         btn.addEventListener('click', async () => {
@@ -608,14 +555,18 @@
           const threadId = btn.dataset.id;
           const content = document.getElementById(`reply-content-${threadId}`).value.trim();
           if (content) {
+            const thread = (await getAllThreads()).find(t => t.id === threadId);
+            if (thread.username.toLowerCase() === currentUser.username.toLowerCase()) {
+              document.getElementById('auth-error').textContent = 'Cannot reply to your own thread';
+              document.getElementById('auth-error').className = 'error';
+              return;
+            }
             const reply = {
               id: crypto.randomUUID(),
               threadId,
               username: currentUser.username,
               content,
-              timestamp: Date.now(),
-              reactions: { like: 0, love: 0, wow: 0 },
-              userReactions: {}
+              timestamp: Date.now()
             };
             await saveReply(reply);
             broadcastReply(reply);
@@ -623,18 +574,6 @@
             document.getElementById(`reply-form-${threadId}`).style.display = 'none';
             renderThreads();
           }
-        });
-      });
-
-      document.querySelectorAll('.reaction-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const itemId = btn.dataset.id;
-          const type = btn.dataset.type;
-          const isReply = btn.dataset.reply === 'true';
-          const username = currentUser.username;
-          const item = await updateReaction(itemId, type, username, isReply);
-          broadcastReaction(itemId, type, username, isReply);
-          renderThreads();
         });
       });
     }
@@ -646,13 +585,19 @@
 
     function initPeer() {
       peer = new SimplePeer({ initiator: true, trickle: false });
-      peer.on('error', err => console.error('Peer error:', err));
+      peer.on('error', err => {
+        console.error('Peer error:', err);
+        document.getElementById('auth-error').textContent = 'Peer connection failed';
+        document.getElementById('auth-error').className = 'error';
+      });
       peer.on('signal', data => {
         document.getElementById('peer-id').textContent = JSON.stringify(data);
       });
       peer.on('connect', () => {
         console.log('Peer connected');
         peers.push(peer);
+        document.getElementById('auth-error').textContent = 'Peer connected successfully';
+        document.getElementById('auth-error').className = 'success';
       });
       peer.on('data', async data => {
         try {
@@ -666,9 +611,6 @@
           } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
             await deleteThread(message.threadId);
             renderThreads();
-          } else if (message.type === 'reaction') {
-            await updateReaction(message.itemId, message.reactionType, message.username, message.isReply);
-            renderThreads();
           }
         } catch (err) {
           console.error('Error processing peer data:', err);
@@ -678,10 +620,16 @@
 
     function connectToPeer(remoteId) {
       const newPeer = new SimplePeer({ trickle: false });
-      newPeer.on('error', err => console.error('Peer error:', err));
+      newPeer.on('error', err => {
+        console.error('Peer error:', err);
+        document.getElementById('auth-error').textContent = 'Failed to connect to peer';
+        document.getElementById('auth-error').className = 'error';
+      });
       newPeer.on('connect', () => {
         console.log('Connected to remote peer');
         peers.push(newPeer);
+        document.getElementById('auth-error').textContent = 'Peer connected successfully';
+        document.getElementById('auth-error').className = 'success';
       });
       newPeer.on('data', async data => {
         try {
@@ -695,9 +643,6 @@
           } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
             await deleteThread(message.threadId);
             renderThreads();
-          } else if (message.type === 'reaction') {
-            await updateReaction(message.itemId, message.reactionType, message.username, message.isReply);
-            renderThreads();
           }
         } catch (err) {
           console.error('Error processing peer data:', err);
@@ -705,8 +650,11 @@
       });
       try {
         newPeer.signal(JSON.parse(remoteId));
+        document.getElementById('auth-error').textContent = 'Attempting to connect to peer...';
+        document.getElementById('auth-error').className = 'success';
       } catch (err) {
         document.getElementById('auth-error').textContent = 'Invalid Peer ID';
+        document.getElementById('auth-error').className = 'error';
       }
     }
 
@@ -722,11 +670,6 @@
 
     function broadcastDelete(threadId) {
       const message = { type: 'delete', threadId };
-      peers.forEach(p => p.send(JSON.stringify(message)));
-    }
-
-    function broadcastReaction(itemId, reactionType, username, isReply) {
-      const message = { type: 'reaction', itemId, reactionType, username, isReply };
       peers.forEach(p => p.send(JSON.stringify(message)));
     }
 
@@ -755,11 +698,14 @@
       errorEl.textContent = '';
       try {
         currentUser = await login(username, password);
+        localStorage.setItem('currentUser', username);
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('forum-section').style.display = 'block';
         document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
         initPeer();
-        renderThreads();
+        await renderThreads();
+        errorEl.textContent = 'Logged in successfully';
+        errorEl.className = 'success';
       } catch (err) {
         errorEl.textContent = err.message || 'Login failed';
         errorEl.className = 'error';
@@ -768,18 +714,20 @@
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       currentUser = null;
+      localStorage.removeItem('currentUser');
       document.getElementById('auth-section').style.display = 'block';
       document.getElementById('forum-section').style.display = 'none';
       document.getElementById('username').value = '';
       document.getElementById('password').value = '';
       document.getElementById('auth-error').textContent = '';
+      document.getElementById('thread-list').innerHTML = '';
       peers.forEach(p => p.destroy());
       peers.length = 0;
       if (peer) peer.destroy();
     });
 
     document.getElementById('connect-peer-btn').addEventListener('click', () => {
-      const remoteId = document.getElementById('remote-peer-id').value;
+      const remoteId = document.getElementById('remote-peer-id').value.trim();
       if (remoteId) {
         connectToPeer(remoteId);
       } else {
@@ -809,24 +757,32 @@
           title,
           content,
           image,
-          timestamp: Date.now(),
-          reactions: { like: 0, love: 0, wow: 0 },
-          userReactions: {}
+          timestamp: Date.now()
         };
         await saveThread(thread);
         broadcastThread(thread);
-        renderThreads();
+        await renderThreads();
         document.getElementById('thread-title').value = '';
         document.getElementById('thread-content').value = '';
         imageInput.value = '';
+        document.getElementById('auth-error').textContent = 'Thread posted successfully';
+        document.getElementById('auth-error').className = 'success';
       } else {
         document.getElementById('auth-error').textContent = 'Title and content are required';
         document.getElementById('auth-error').className = 'error';
       }
     });
 
-    // Initialize DB on load
-    initDB().catch(err => console.error('DB initialization failed:', err));
+    // Initialize
+    initDB().then(async () => {
+      try {
+        await autoLogin();
+      } catch (err) {
+        console.log('No auto-login:', err);
+        document.getElementById('auth-section').style.display = 'block';
+        document.getElementById('forum-section').style.display = 'none';
+      }
+    }).catch(err => console.error('DB initialization failed:', err));
   </script>
 </body>
 </html>
