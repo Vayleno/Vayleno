@@ -1,2136 +1,832 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --secondary-color: #a29bfe;
-            --dark-color: #2d3436;
-            --light-color: #f5f6fa;
-            --text-color: #636e72;
-            --text-light: #b2bec3;
-            --shadow: 0 2.1px 3.5px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 4.2px 14px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
-            --gradient-bg: linear-gradient(135deg, #f5f6fa, #e9ecef);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: var(--gradient-bg);
-            color: var(--dark-color);
-            height: 100vh;
-            overflow: hidden;
-            line-height: 1.6;
-            font-size: 0.56rem;
-        }
-
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.56rem 1.12rem;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(7px);
-            z-index: 10;
-            position: sticky;
-            top: 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.28rem;
-            font-size: 0.84rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .search-bar {
-            position: relative;
-            flex: 1;
-            max-width: 336px;
-            margin: 0 0.56rem;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 0.42rem 0.56rem 0.42rem 1.68rem;
-            border-radius: 16.8px;
-            border: 0.7px solid var(--text-light);
-            outline: none;
-            transition: var(--transition);
-            font-size: 0.56rem;
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        .search-bar input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 1.68px rgba(108, 92, 231, 0.1);
-        }
-
-        .search-bar i {
-            position: absolute;
-            left: 0.84rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-            font-size: 0.56rem;
-        }
-
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 140px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0.84rem;
-            overflow-y: auto;
-            border-right: 0.7px solid rgba(0, 0, 0, 0.05);
-            backdrop-filter: blur(7px);
-            flex-shrink: 0;
-        }
-
-        .sidebar nav ul {
-            list-style: none;
-        }
-
-        .sidebar nav ul li {
-            padding: 0.42rem 0.56rem;
-            margin-bottom: 0.28rem;
-            border-radius: 4.2px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-            transition: var(--transition);
-            font-weight: 500;
-            font-size: 0.56rem;
-        }
-
-        .sidebar nav ul li:hover {
-            background-color: var(--secondary-color);
-            color: white;
-            transform: translateX(2.8px);
-        }
-
-        .sidebar nav ul li.active {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 1.4px 4.2px rgba(108, 92, 231, 0.2);
-        }
-
-        .music-content {
-            flex: 1;
-            padding: 1.12rem;
-            overflow-y: auto;
-            background: rgba(255, 255, 255, 0.3);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5.6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .home-container {
-            max-width: 560px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 11.2px;
-            padding: 1.12rem;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(7px);
-        }
-
-        .home-header {
-            text-align: center;
-            margin-bottom: 1.12rem;
-        }
-
-        .home-title {
-            font-size: 1.12rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-            letter-spacing: -0.02em;
-        }
-
-        .home-subtitle {
-            font-size: 0.672rem;
-            color: var(--text-color);
-            max-width: 336px;
-            margin: 0 auto;
-        }
-
-        .home-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.84rem;
-            margin-bottom: 1.12rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 8.4px;
-            padding: 0.84rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2.8px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-icon {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-        }
-
-        .stat-number {
-            font-size: 1.26rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin-bottom: 0.28rem;
-        }
-
-        .stat-label {
-            font-size: 0.616rem;
-            color: var(--text-color);
-        }
-
-        .disclaimer-container {
-            max-width: 448px;
-            margin: 0 auto;
-            padding: 1.12rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 11.2px;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(7px);
-            text-align: center;
-        }
-
-        .disclaimer-header {
-            margin-bottom: 1.12rem;
-        }
-
-        .disclaimer-title {
-            font-size: clamp(1.008rem, 2.24vw, 1.4rem);
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-            letter-spacing: -0.02em;
-        }
-
-        .disclaimer-subtitle {
-            font-size: 0.616rem;
-            color: var(--text-color);
-            font-weight: 400;
-            max-width: 336px;
-            margin: 0 auto;
-        }
-
-        .disclaimer-content {
-            background: white;
-            padding: 1.12rem;
-            border-radius: 8.4px;
-            box-shadow: var(--shadow);
-            margin: 1.12rem 0;
-            border-left: 2.8px solid var(--primary-color);
-            text-align: left;
-        }
-
-        .disclaimer-section {
-            margin-bottom: 1.12rem;
-        }
-
-        .disclaimer-section h3 {
-            font-size: 0.728rem;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.42rem;
-        }
-
-        .disclaimer-section p {
-            font-size: 0.56rem;
-            line-height: 1.7;
-            color: var(--text-color);
-            margin-bottom: 0.56rem;
-        }
-
-        .special-thanks {
-            margin-top: 0.84rem;
-        }
-
-        .special-thanks h4 {
-            font-size: 0.672rem;
-            color: var(--primary-color);
-            margin-bottom: 0.56rem;
-            font-weight: 600;
-        }
-
-        .special-thanks ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .special-thanks li {
-            padding: 0.28rem 0;
-            color: var(--text-color);
-            font-size: 0.56rem;
-            border-bottom: 0.7px solid rgba(108, 92, 231, 0.1);
-            transition: var(--transition);
-        }
-
-        .special-thanks li:hover {
-            color: var(--primary-color);
-            padding-left: 0.56rem;
-        }
-
-        .special-thanks li:last-child {
-            border-bottom: none;
-        }
-
-        .continue-btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 0.56rem 1.4rem;
-            border-radius: 28px;
-            font-size: 0.616rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2.1px 8.4px rgba(108, 92, 231, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.28rem;
-        }
-
-        .continue-btn:hover {
-            transform: translateY(-1.12px);
-            box-shadow: 0 4.2px 14px rgba(108, 92, 231, 0.4);
-        }
-
-        .form-group {
-            margin-bottom: 0.84rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.616rem;
-            color: var(--text-color);
-            margin-bottom: 0.28rem;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.42rem;
-            border-radius: 4.2px;
-            border: 0.7px solid var(--text-light);
-            background: white;
-            font-size: 0.56rem;
-            color: var(--dark-color);
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 1.68px rgba(108, 92, 231, 0.1);
-        }
-
-        .form-group textarea {
-            min-height: 84px;
-            resize: vertical;
-        }
-
-        .search-results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-            gap: 0.84rem;
-        }
-
-        .music-card {
-            background: white;
-            border-radius: 5.6px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .music-card:hover {
-            transform: translateY(-2.8px);
-            box-shadow: 0 5.6px 8.4px rgba(0, 0, 0, 0.15);
-        }
-
-        .music-card img {
-            width: 100%;
-            height: 89.6px;
-            object-fit: cover;
-        }
-
-        .music-info {
-            padding: 0.56rem;
-        }
-
-        .music-info h3 {
-            font-size: 0.56rem;
-            margin-bottom: 0.14rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .music-info p {
-            font-size: 0.448rem;
-            color: var(--text-color);
-        }
-
-        .music-card .favorite-btn {
-            position: absolute;
-            top: 5.6px;
-            right: 5.6px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.56rem;
-            padding: 0.28rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .music-card .favorite-btn.liked {
-            color: #ff0000;
-        }
-
-        .music-card .favorite-btn:hover {
-            color: var(--primary-color);
-            background: white;
-        }
-
-        .music-card .add-to-playlist-btn {
-            position: absolute;
-            bottom: 5.6px;
-            right: 5.6px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            color: var(--text-light);
-            font-size: 0.56rem;
-            padding: 0.28rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .music-card .add-to-playlist-btn:hover {
-            color: var(--primary-color);
-            background: white;
-        }
-
-        .music-card .remove-btn {
-            position: absolute;
-            top: 5.6px;
-            left: 5.6px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            color: var(--text-light);
-            font-size: 0.56rem;
-            padding: 0.28rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .music-card .remove-btn:hover {
-            color: #ff0000;
-            background: white;
-        }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 2.24rem 0;
-            color: var(--text-light);
-        }
-
-        .empty-state i {
-            font-size: 1.68rem;
-            margin-bottom: 0.56rem;
-            color: var(--secondary-color);
-        }
-
-        .empty-state p {
-            font-size: 0.616rem;
-        }
-
-        .empty-state p:last-child {
-            font-size: 0.504rem;
-            margin-top: 0.28rem;
-        }
-
-        .player-controls {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0.56rem 1.12rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 -1.12px 5.6px rgba(0, 0, 0, 0.05);
-            border-top: 0.7px solid rgba(0, 0, 0, 0.05);
-            backdrop-filter: blur(7px);
-            flex-shrink: 0;
-        }
-
-        .song-info {
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-            width: 140px;
-            min-width: 140px;
-        }
-
-        .album-art {
-            width: 28px;
-            height: 28px;
-            border-radius: 2.8px;
-            object-fit: cover;
-            box-shadow: 0 1.12px 2.24px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
-
-        .song-title {
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin: 0;
-            font-size: 0.616rem;
-        }
-
-        .artist {
-            font-size: 0.448rem;
-            color: var(--text-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin: 0;
-        }
-
-        .song-info i {
-            color: var(--text-light);
-            cursor: pointer;
-            margin-left: auto;
-            flex-shrink: 0;
-            font-size: 0.56rem;
-        }
-
-        .song-info i.liked {
-            color: #ff0000;
-        }
-
-        .song-info i:hover {
-            color: var(--primary-color);
-        }
-
-        .player-center {
-            flex: 1;
-            max-width: 336px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.28rem;
-            min-width: 0;
-        }
-
-        .player-buttons {
-            display: flex;
-            gap: 0.84rem;
-        }
-
-        .control-btn {
-            background: none;
-            border: none;
-            font-size: 0.56rem;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .control-btn:hover {
-            color: var(--primary-color);
-            transform: scale(1.1);
-        }
-
-        .play-btn {
-            background-color: var(--primary-color);
-            color: white;
-            width: 22.4px;
-            height: 22.4px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 1.12px 4.2px rgba(108, 92, 231, 0.3);
-        }
-
-        .play-btn:hover {
-            transform: scale(1.08);
-            background-color: var(--secondary-color);
-        }
-
-        .progress-container {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 2.24px;
-            background-color: #eee;
-            border-radius: 1.12px;
-            cursor: pointer;
-            position: relative;
-            min-width: 112px;
-        }
-
-        .progress {
-            height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 1.12px;
-            width: 0%;
-            transition: width 0.08s linear;
-        }
-
-        .time {
-            font-size: 0.448rem;
-            color: var(--text-color);
-            min-width: 22.4px;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        .player-right {
-            width: 112px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 0.56rem;
-            flex-shrink: 0;
-        }
-
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 0.28rem;
-        }
-
-        .volume-icon {
-            font-size: 0.56rem;
-            color: var(--text-color);
-            transition: transform 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .volume-icon.mute { transform: scale(0.8); }
-        .volume-icon.low { transform: scale(0.9); }
-        .volume-icon.medium { transform: scale(1); }
-        .volume-icon.high { transform: scale(1.1); }
-        .volume-icon.animating { animation: volumePulse 0.3s ease-in-out; }
-
-        @keyframes volumePulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .volume-slider {
-            width: 56px;
-            height: 2.24px;
-            -webkit-appearance: none;
-            background-color: #eee;
-            border-radius: 1.12px;
-            outline: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 6.72px;
-            height: 6.72px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 1.12px 2.24px rgba(0, 0, 0, 0.2);
-        }
-
-        .loading {
-            display: flex;
-            justify-content: center;
-            padding: 1.12rem;
-        }
-
-        .loading-spinner {
-            width: 22.4px;
-            height: 22.4px;
-            border: 2.24px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .changelog-container {
-            max-width: 504px;
-            margin: 0 auto;
-            padding: 1.12rem 0;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8.4px;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(7px);
-        }
-
-        .changelog-title {
-            font-size: 1.26rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1.12rem;
-            text-align: center;
-            letter-spacing: -0.02em;
-        }
-
-        .changelog-timeline {
-            position: relative;
-            padding-left: 1.12rem;
-            margin: 0 0.84rem;
-        }
-
-        .changelog-timeline::before {
-            content: '';
-            position: absolute;
-            left: 0.28rem;
-            top: 0;
-            bottom: 0;
-            width: 2.24px;
-            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-            border-radius: 1.68px;
-        }
-
-        .changelog-item {
-            position: relative;
-            margin-bottom: 1.12rem;
-            padding: 0.84rem;
-            background: white;
-            border-radius: 6.72px;
-            box-shadow: 0 2.24px 6.72px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            opacity: 0;
-            transform: translateY(11.2px);
-            animation: slideIn 0.4s ease forwards;
-        }
-
-        .changelog-item:hover {
-            transform: translateY(-2.8px);
-            box-shadow: 0 4.2px 8.4px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes slideIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .changelog-item h3 {
-            font-size: 0.84rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 0.28rem;
-        }
-
-        .changelog-item .date {
-            font-size: 0.56rem;
-            font-weight: 500;
-            color: var(--text-light);
-            margin-bottom: 0.56rem;
-        }
-
-        .changelog-item ul {
-            list-style: none;
-            font-size: 0.56rem;
-            color: var(--text-color);
-        }
-
-        .changelog-item ul li {
-            position: relative;
-            padding-left: 1.12rem;
-            margin-bottom: 0.42rem;
-            line-height: 1.5;
-        }
-
-        .changelog-item ul li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            top: 0.14rem;
-            font-size: 0.84rem;
-            line-height: 1;
-        }
-
-        .changelog-item ul li.added::before { color: #28a745; }
-        .changelog-item ul li.fixed::before { color: #007bff; }
-        .changelog-item ul li.optimized::before { color: #ffc107; }
-        .changelog-item ul li.bug::before { color: #dc3545; }
-
-        .playlists-container, .playlist-view {
-            max-width: 560px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 11.2px;
-            padding: 1.12rem;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(7px);
-        }
-
-        #create-playlist-btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.56rem 1.12rem;
-            border: none;
-            border-radius: 28px;
-            font-size: 0.616rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 1.12rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.28rem;
-        }
-
-        #create-playlist-btn:hover {
-            background: var(--secondary-color);
-        }
-
-        .playlist-card {
-            background: white;
-            border-radius: 8.4px;
-            padding: 0.84rem;
-            margin-bottom: 0.84rem;
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .playlist-card:hover {
-            transform: translateY(-2.8px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .playlist-img {
-            width: 33.6px;
-            height: 33.6px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .playlist-card h3 {
-            font-size: 0.728rem;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        .playlist-card p {
-            font-size: 0.56rem;
-            color: var(--text-color);
-        }
-
-        .playlist-card .edit-pl, .playlist-card .delete-pl {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.616rem;
-            padding: 0.28rem;
-            transition: var(--transition);
-        }
-
-        .playlist-card .edit-pl {
-            margin-left: auto;
-        }
-
-        .playlist-card .edit-pl:hover {
-            color: var(--primary-color);
-        }
-
-        .playlist-card .delete-pl:hover {
-            color: #dc3545;
-        }
-
-        #back-to-playlists {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            font-size: 0.616rem;
-            cursor: pointer;
-            margin-bottom: 0.84rem;
-            display: flex;
-            align-items: center;
-            gap: 0.28rem;
-        }
-
-        #back-to-playlists i {
-            font-size: 0.56rem;
-        }
-
-        #back-to-playlists:hover {
-            color: var(--secondary-color);
-        }
-
-        .playlist-view h2 {
-            font-size: 1.008rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.84rem;
-            display: flex;
-            align-items: center;
-            gap: 0.56rem;
-        }
-
-        #edit-playlist-btn {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.728rem;
-            transition: var(--transition);
-        }
-
-        #edit-playlist-btn:hover {
-            color: var(--primary-color);
-        }
-
-        @media (max-width: 768px) {
-            .app-header {
-                padding: 0.56rem;
-                flex-direction: column;
-                gap: 0.56rem;
-            }
-
-            .search-bar {
-                width: 100%;
-                margin: 0;
-                order: 3;
-            }
-
-            .logo {
-                order: 1;
-                font-size: 0.7rem;
-            }
-
-            .main-content {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 33.6px;
-                padding: 0;
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                z-index: 100;
-                border-right: none;
-                border-top: 0.7px solid rgba(0, 0, 0, 0.05);
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(7px);
-            }
-
-            .sidebar nav ul {
-                display: flex;
-                width: 100%;
-                justify-content: space-around;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sidebar nav ul li {
-                padding: 0.28rem;
-                margin: 0;
-                flex-direction: column;
-                font-size: 0.392rem;
-                gap: 0.14rem;
-                text-align: center;
-                border-radius: 4.2px;
-                width: 20%;
-            }
-
-            .sidebar nav ul li i {
-                font-size: 0.672rem;
-            }
-
-            .music-content {
-                padding: 0.56rem;
-                margin-bottom: 33.6px;
-                padding-bottom: 44.8px;
-            }
-
-            .disclaimer-container {
-                padding: 0.56rem;
-                margin: 0.28rem;
-            }
-
-            .disclaimer-title {
-                font-size: 1.008rem;
-            }
-
-            .disclaimer-content {
-                padding: 0.84rem;
-                margin: 0.56rem 0;
-            }
-
-            .disclaimer-section h3 {
-                font-size: 0.616rem;
-            }
-
-            .special-thanks li {
-                font-size: 0.532rem;
-            }
-
-            .continue-btn {
-                padding: 0.49rem 1.12rem;
-                font-size: 0.56rem;
-            }
-
-            .search-results {
-                grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-                gap: 0.56rem;
-            }
-
-            .player-controls {
-                padding: 0.42rem 0.56rem;
-                flex-direction: column;
-                gap: 0.42rem;
-            }
-
-            .song-info, .player-center, .player-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .song-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .player-right {
-                width: 100%;
-                justify-content: flex-end;
-            }
-
-            .player-buttons {
-                gap: 0.56rem;
-            }
-
-            .progress-container {
-                width: 100%;
-            }
-
-            .volume-control {
-                gap: 0.42rem;
-            }
-
-            .changelog-container {
-                padding: 0.56rem;
-                margin: 0 0.28rem;
-            }
-
-            .changelog-title {
-                font-size: 0.98rem;
-            }
-
-            .home-container {
-                padding: 0.56rem;
-                margin: 0.28rem;
-            }
-
-            .home-title {
-                font-size: 1.008rem;
-            }
-
-            .home-stats {
-                grid-template-columns: 1fr;
-                gap: 0.56rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .music-card img {
-                height: 67.2px;
-            }
-
-            .player-controls {
-                padding: 0.28rem;
-            }
-
-            .song-info {
-                gap: 0.28rem;
-            }
-
-            .album-art {
-                width: 22.4px;
-                height: 22.4px;
-            }
-
-            .player-buttons {
-                gap: 0.42rem;
-            }
-
-            .play-btn {
-                width: 19.6px;
-                height: 19.6px;
-            }
-
-            .control-btn {
-                font-size: 0.504rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milky's Forum</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Auth Section */
+    #auth-section {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #6200ea;
+      outline: none;
+    }
+
+    button {
+      padding: 12px;
+      background: #6200ea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #7c4dff;
+      transform: translateY(-2px);
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* Forum Section */
+    #forum-section {
+      display: none;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #logout-btn {
+      background: #ff1744;
+    }
+
+    #logout-btn:hover {
+      background: #ff5252;
+    }
+
+    /* Peer Connection */
+    .peer-connect {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .peer-connect input {
+      width: 70%;
+      margin-right: 10px;
+    }
+
+    /* Create Thread */
+    .create-thread {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .create-thread textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Thread List */
+    .thread {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .thread h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .thread-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .thread img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .delete-btn {
+      background: #ff1744;
+      padding: 8px 15px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .delete-btn:hover {
+      background: #ff5252;
+    }
+
+    /* Reply Section */
+    .reply-section {
+      margin-top: 15px;
+      padding-left: 20px;
+      border-left: 2px solid #ddd;
+    }
+
+    .reply-form {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .reply-form textarea {
+      width: 100%;
+      min-height: 60px;
+    }
+
+    .reply {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    /* Reactions */
+    .reactions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .reaction-btn {
+      background: none;
+      border: 1px solid #ddd;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+
+    .reaction-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .reaction-btn.active {
+      background: #e0e0e0;
+    }
+
+    /* Icons */
+    .verified-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>') no-repeat center;
+      background-size: contain;
+    }
+
+    .owner-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>') no-repeat center;
+      background-size: contain;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      #auth-section, .thread, .create-thread, header, .peer-connect {
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="logo">
-                <span>Vayleno</span>
-            </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Search for songs..." id="search-input">
-                <i class="fas fa-search"></i>
-            </div>
-        </header>
-
-        <div class="main-content">
-            <aside class="sidebar">
-                <nav>
-                    <ul>
-                        <li class="active" data-tab="dashboard-tab"><i class="fas fa-home"></i> <span>Dashboard</span></li>
-                        <li data-tab="disclaimer-tab"><i class="fas fa-info-circle"></i> <span>Disclaimer</span></li>
-                        <li data-tab="search-tab"><i class="fas fa-search"></i> <span>Search</span></li>
-                        <li data-tab="favorites-tab"><i class="fas fa-heart"></i> <span>Favorites</span></li>
-                        <li data-tab="history-tab"><i class="fas fa-history"></i> <span>History</span></li>
-                        <li data-tab="playlists-tab"><i class="fas fa-list-ul"></i> <span>Playlists</span></li>
-                        <li data-tab="changelogs-tab"><i class="fas fa-clipboard-list"></i> <span>Changelogs</span></li>
-                        <li data-tab="contact-tab"><i class="fas fa-envelope"></i> <span>Contact Us</span></li>
-                    </ul>
-                </nav>
-            </aside>
-
-            <main class="music-content">
-                <div id="dashboard-tab" class="tab-content active">
-                    <div class="home-container">
-                        <div class="home-header">
-                            <h1 class="home-title">Welcome to Your Music Dashboard</h1>
-                            <p class="home-subtitle">Track your music journey in real time</p>
-                        </div>
-                        <div class="home-stats">
-                            <div class="stat-card">
-                                <i class="fas fa-play-circle stat-icon"></i>
-                                <div class="stat-number" id="songs-played">0</div>
-                                <div class="stat-label">Songs Played</div>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-search stat-icon"></i>
-                                <div class="stat-number" id="songs-searched">0</div>
-                                <div class="stat-label">Songs Searched</div>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-heart stat-icon"></i>
-                                <div class="stat-number" id="songs-favorited">0</div>
-                                <div class="stat-label">Songs Favorited</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="disclaimer-tab" class="tab-content">
-                    <div class="disclaimer-container">
-                        <div class="disclaimer-header">
-                            <h1 class="disclaimer-title">Welcome to Vayleno</h1>
-                            <p class="disclaimer-subtitle">A collaborative music discovery experience powered by cutting-edge AI</p>
-                        </div>
-                        <div class="disclaimer-content">
-                            <div class="disclaimer-section">
-                                <h3><i class="fas fa-rocket"></i> About Vayleno</h3>
-                                <p>Vayleno was created through the innovative collaboration of advanced AI technologies including ChatGPT, Gemini, and xAI. This music player represents the power of collective intelligence, bringing together cutting-edge AI capabilities to deliver a seamless music discovery experience that wouldn't have been possible without their groundbreaking contributions.</p>
-                            </div>
-                            <div class="disclaimer-section">
-                                <h3><i class="fas fa-key"></i> Technical Foundation</h3>
-                                <p>Vayleno leverages the YouTube Data API, provided completely free of charge by Google. This enables access to a vast library of music content while maintaining compliance with YouTube's terms of service. Our custom interface and design philosophy create a unique user experience, distinct from standard YouTube interfaces, while transparently utilizing this powerful free API service.</p>
-                                <div class="special-thanks">
-                                    <h4>Special Thanks To:</h4>
-                                    <ul>
-                                        <li>YouTube API - For providing free access to music content</li>
-                                        <li>ChatGPT - For creative development assistance</li>
-                                        <li>Gemini - For innovative problem solving</li>
-                                        <li>xAI - For advanced AI capabilities</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="continue-btn" onclick="switchToSearch()">
-                            <i class="fas fa-music"></i> Start Discovering Music
-                        </button>
-                    </div>
-                </div>
-
-                <div id="search-tab" class="tab-content">
-                    <div id="search-results" class="search-results">
-                        <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <p>Search for songs online</p>
-                            <p>Results will appear here</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="favorites-tab" class="tab-content">
-                    <div id="favorites-results" class="search-results">
-                        <div class="empty-state">
-                            <i class="fas fa-heart"></i>
-                            <p>Your favorite songs</p>
-                            <p>Like songs to add them here</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="history-tab" class="tab-content">
-                    <div id="history-results" class="search-results">
-                        <div class="empty-state">
-                            <i class="fas fa-history"></i>
-                            <p>Your recently played songs</p>
-                            <p>Play songs to add them here</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="playlists-tab" class="tab-content">
-                    <div class="playlists-container">
-                        <button id="create-playlist-btn"><i class="fas fa-plus"></i> Create New Playlist</button>
-                        <div id="playlists-list"></div>
-                    </div>
-                </div>
-
-                <div id="changelogs-tab" class="tab-content">
-                    <div class="changelog-container">
-                        <h2 class="changelog-title">Vayleno Updates</h2>
-                        <div class="changelog-timeline">
-                            <div class="changelog-item">
-                                <h3>Version 1.1.3</h3>
-                                <div class="date">October 20, 2025</div>
-                                <ul>
-                                    <li class="added">Added Contact Us tab with a form to collect user feedback</li>
-                                    <li class="added">Integrated Formspree for submission handling without a backend</li>
-                                    <li class="optimized">Styled contact form to match Vayleno's purple-themed UI</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.1.2</h3>
-                                <div class="date">October 20, 2025</div>
-                                <ul>
-                                    <li class="added">Moved playlist stats (Playlists Created, Songs in Playlists) to Playlists tab for better context</li>
-                                    <li class="optimized">Improved playlist view layout and button positioning</li>
-                                    <li class="fixed">Fixed real-time updates for playlist stats in Playlists tab for playlist and song changes</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.1.1</h3>
-                                <div class="date">October 18, 2025</div>
-                                <ul>
-                                    <li class="added">Added custom image upload for playlist covers (PNG, JPG, etc.)</li>
-                                    <li class="added">Added playlist editing (name and image)</li>
-                                    <li class="added">Introduced playlist stats (Playlists Created, Songs in Playlists) in Playlists tab</li>
-                                    <li class="fixed">Adjusted button positions for better UI consistency</li>
-                                    <li class="fixed">Corrected songs played count when removing from history</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.1.0</h3>
-                                <div class="date">October 16, 2025</div>
-                                <ul>
-                                    <li class="added">Added playlist creation with custom names and icons</li>
-                                    <li class="added">Enabled adding songs to playlists from any tab</li>
-                                    <li class="added">Added ability to view, play, and remove songs from playlists</li>
-                                    <li class="added">Added playlist deletion functionality</li>
-                                    <li class="added">Enabled removing songs from history with real-time dashboard updates</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.0.9</h3>
-                                <div class="date">October 14, 2025</div>
-                                <ul>
-                                    <li class="fixed">Fixed pause functionality across all tabs</li>
-                                    <li class="fixed">Fixed favorite toggling issue in player controls</li>
-                                    <li class="added">Added dashboard stats for songs played, searched, and favorited</li>
-                                    <li class="optimized">Improved overall performance and UI responsiveness</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.0.4</h3>
-                                <div class="date">October 13, 2025</div>
-                                <ul>
-                                    <li class="added">Added volume animation for better user feedback</li>
-                                    <li class="added">Expanded song support for improved music discovery</li>
-                                </ul>
-                            </div>
-                            <div class="changelog-item">
-                                <h3>Version 1.0.0</h3>
-                                <div class="date">October 12, 2025</div>
-                                <ul>
-                                    <li class="added">Launched Vayleno music player</li>
-                                    <li class="added">Added search functionality to find and play music online</li>
-                                    <li class="added">Introduced tabs for search, favorites, history, and changelogs</li>
-                                    <li class="added">Implemented clean, purple-themed UI design</li>
-                                    <li class="fixed">Fixed initial volume settings on app load</li>
-                                    <li class="optimized">Optimized music search for speed and accuracy</li>
-                                    <li class="bug">Fixed progress bar display issue on initial load</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="contact-tab" class="tab-content">
-                    <div class="disclaimer-container">
-                        <div class="disclaimer-header">
-                            <h1 class="disclaimer-title">Contact Us</h1>
-                            <p class="disclaimer-subtitle">Have questions or feedback? Reach out to the Vayleno team!</p>
-                        </div>
-                        <div class="disclaimer-content">
-                            <form action="https://formspree.io/f/xkgqajpr" method="POST" id="contact-form">
-                                <div class="form-group">
-                                    <label for="contact-name">Your name:</label>
-                                    <input type="text" id="contact-name" name="name" placeholder="Enter your name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact-email">Your email:</label>
-                                    <input type="email" id="contact-email" name="email" placeholder="Enter your email (Required)">
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact-message">Your message:</label>
-                                    <textarea id="contact-message" name="message" placeholder="Enter your message" required></textarea>
-                                </div>
-                                <button type="submit" class="continue-btn"><i class="fas fa-paper-plane"></i> Send</button>
-                            </form>
-                            <p class="disclaimer-subtitle" style="margin-top: 0.56rem;">We'll get back to you soon!</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <div class="player-controls">
-            <div class="song-info">
-                <img src="https://via.placeholder.com/50" alt="Album Art" class="album-art" id="current-album-art">
-                <div>
-                    <p class="song-title" id="current-song-title">No song selected</p>
-                    <p class="artist" id="current-song-artist">-</p>
-                </div>
-                <i class="fas fa-heart" id="like-btn"></i>
-            </div>
-            <div class="player-center">
-                <div class="player-buttons">
-                    <button class="control-btn" id="prev-btn"><i class="fas fa-step-backward"></i></button>
-                    <button class="control-btn play-btn" id="play-btn"><i class="fas fa-play"></i></button>
-                    <button class="control-btn" id="next-btn"><i class="fas fa-step-forward"></i></button>
-                </div>
-                <div class="progress-container">
-                    <span class="time" id="current-time">0:00</span>
-                    <div class="progress-bar" id="progress-bar">
-                        <div class="progress" id="progress"></div>
-                    </div>
-                    <span class="time" id="duration">0:00</span>
-                </div>
-            </div>
-            <div class="player-right">
-                <div class="volume-control">
-                    <i class="fas fa-volume-up volume-icon high" id="volume-icon"></i>
-                    <input type="range" min="0" max="100" value="80" class="volume-slider" id="volume-slider">
-                </div>
-            </div>
-        </div>
-
-        <div id="music-player" style="display: none;"></div>
+  <div class="container">
+    <!-- Auth Section -->
+    <div id="auth-section">
+      <h1>Welcome to Milky's Forum</h1>
+      <div id="auth-form">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="signup-btn">Sign Up</button>
+        <button id="login-btn">Log In</button>
+      </div>
+      <p id="auth-error" class="error"></p>
     </div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-        const apiKey = 'AIzaSyBeS7U9CMhD_K8q7JrMPW3tlzQPm3iWQK0';
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-        const favoritesResults = document.getElementById('favorites-results');
-        const historyResults = document.getElementById('history-results');
-        const playBtn = document.getElementById('play-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const progressBar = document.getElementById('progress-bar');
-        const progress = document.getElementById('progress');
-        const currentTimeEl = document.getElementById('current-time');
-        const durationEl = document.getElementById('duration');
-        const volumeSlider = document.getElementById('volume-slider');
-        const volumeIcon = document.getElementById('volume-icon');
-        const currentSongTitle = document.getElementById('current-song-title');
-        const currentSongArtist = document.getElementById('current-song-artist');
-        const currentAlbumArt = document.getElementById('current-album-art');
-        const likeBtn = document.getElementById('like-btn');
-        const tabButtons = document.querySelectorAll('.sidebar nav ul li');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const songsPlayedEl = document.getElementById('songs-played');
-        const songsSearchedEl = document.getElementById('songs-searched');
-        const songsFavoritedEl = document.getElementById('songs-favorited');
+    <!-- Forum Section -->
+    <div id="forum-section" style="display: none;">
+      <header>
+        <h1>Milky's Forum</h1>
+        <div class="user-info">
+          <span id="current-user"></span>
+          <button id="logout-btn">Log Out</button>
+        </div>
+      </header>
 
-        let player;
-        let isPlaying = false;
-        let currentSongIndex = -1;
-        let currentTime = 0;
-        let trackDuration = 0;
-        let progressInterval;
-        let currentPlaylist = [];
-        let searchResultsData = [];
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        let history = JSON.parse(localStorage.getItem('history')) || [];
-        let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
-        let stats = JSON.parse(localStorage.getItem('musicStats')) || {
-            songsPlayed: 0,
-            songsSearched: 0,
-            songsFavorited: 0
+      <!-- Peer Connection -->
+      <div class="peer-connect">
+        <p>Your Peer ID: <span id="peer-id">Not connected</span></p>
+        <input type="text" id="remote-peer-id" placeholder="Enter friend's Peer ID">
+        <button id="connect-peer-btn">Connect to Peer</button>
+      </div>
+
+      <!-- Create Thread -->
+      <div class="create-thread">
+        <input type="text" id="thread-title" placeholder="Thread Title">
+        <textarea id="thread-content" placeholder="Write your post..."></textarea>
+        <input type="file" id="thread-image" accept="image/*">
+        <button id="create-thread-btn">Post Thread</button>
+      </div>
+
+      <!-- Thread List -->
+      <div id="thread-list"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/simple-peer@9.11.0/simple-peer.min.js"></script>
+  <script>
+    // IndexedDB Setup
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('forumDB', 3); // Updated version
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains('users')) {
+            db.createObjectStore('users', { keyPath: 'username' });
+          }
+          if (!db.objectStoreNames.contains('threads')) {
+            db.createObjectStore('threads', { keyPath: 'id' });
+          }
+          if (!db.objectStoreNames.contains('replies')) {
+            db.createObjectStore('replies', { keyPath: 'id' });
+          }
         };
-        let currentMode = 'dashboard';
-        let currentSong = null;
-        let currentPlaylistId = null;
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
 
-        // Sync stats with data
-        stats.songsFavorited = favorites.length;
-        saveStats();
+    // Utility Functions
+    async function hashPassword(password) {
+      const msgBuffer = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-        function saveFavorites() {
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            stats.songsFavorited = favorites.length;
-            saveStats();
-            updateStatsDisplay();
-            updateLikeButton();
-        }
+    // Auth Functions
+    async function signup(username, password) {
+      if (!username || !password) throw new Error('Username and password are required');
+      const db = await initDB();
+      const tx = db.transaction(['users'], 'readwrite');
+      const store = tx.objectStore('users');
+      const hashedPassword = await hashPassword(password);
+      const user = {
+        username,
+        password: hashedPassword,
+        isAdmin: username.toLowerCase() === 'milky' // Only "milky" is admin
+      };
 
-        function saveHistory() {
-            localStorage.setItem('history', JSON.stringify(history));
-            updateStatsDisplay();
-        }
-
-        function savePlaylists() {
-            localStorage.setItem('playlists', JSON.stringify(playlists));
-        }
-
-        function saveStats() {
-            localStorage.setItem('musicStats', JSON.stringify(stats));
-        }
-
-        function updateStatsDisplay() {
-            songsPlayedEl.textContent = stats.songsPlayed;
-            songsSearchedEl.textContent = stats.songsSearched;
-            songsFavoritedEl.textContent = stats.songsFavorited;
-        }
-
-        function isFavorited(videoId) {
-            return favorites.some(f => f.videoId === videoId);
-        }
-
-        function toggleFavorite(song) {
-            if (!song) return;
-            if (isFavorited(song.videoId)) {
-                favorites = favorites.filter(f => f.videoId !== song.videoId);
-            } else {
-                favorites.push(song);
-            }
-            saveFavorites();
-            if (currentMode === 'favorites') {
-                renderFavorites();
-            }
-            document.querySelectorAll('.favorite-btn').forEach(btn => {
-                const videoId = btn.closest('.music-card')?.dataset?.videoId;
-                if (videoId === song.videoId) {
-                    btn.classList.toggle('liked', isFavorited(song.videoId));
-                }
-            });
-        }
-
-        function addToHistory(song) {
-            history = history.filter(h => h.videoId !== song.videoId);
-            history.unshift(song);
-            if (history.length > 100) history.pop();
-            stats.songsPlayed++;
-            saveHistory();
-            saveStats();
-            updateStatsDisplay();
-        }
-
-        function updateLikeButton() {
-            if (currentSong) {
-                likeBtn.classList.toggle('liked', isFavorited(currentSong.videoId));
-            } else {
-                likeBtn.classList.remove('liked');
-            }
-        }
-
-        function formatTime(seconds) {
-            if (!seconds || isNaN(seconds)) return '0:00';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function parseISO8601Duration(duration) {
-            if (!duration) return 0;
-            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-            const hours = parseInt(match[1]) || 0;
-            const minutes = parseInt(match[2]) || 0;
-            const seconds = parseInt(match[3]) || 0;
-            return hours * 3600 + minutes * 60 + seconds;
-        }
-
-        function updateSongInfo() {
-            if (currentSong) {
-                currentSongTitle.textContent = currentSong.title;
-                currentSongArtist.textContent = currentSong.artist;
-                currentAlbumArt.src = currentSong.thumbnail;
-                durationEl.textContent = formatTime(trackDuration);
-            } else {
-                currentSongTitle.textContent = 'No song selected';
-                currentSongArtist.textContent = '-';
-                currentAlbumArt.src = 'https://via.placeholder.com/50';
-                durationEl.textContent = '0:00';
-                currentTimeEl.textContent = '0:00';
-                progress.style.width = '0%';
-            }
-            updateLikeButton();
-        }
-
-        function updateProgress() {
-            if (player && isPlaying && trackDuration > 0) {
-                currentTime = player.getCurrentTime();
-                const progressPercent = (currentTime / trackDuration) * 100;
-                progress.style.width = `${progressPercent}%`;
-                currentTimeEl.textContent = formatTime(currentTime);
-            }
-        }
-
-        function updateVolumeIcon(value) {
-            volumeIcon.className = 'fas fa-volume-up volume-icon';
-            volumeIcon.classList.add('animating');
-            setTimeout(() => {
-                volumeIcon.classList.remove('animating');
-            }, 300);
-            if (value == 0) {
-                volumeIcon.className = 'fas fa-volume-mute volume-icon mute';
-            } else if (value < 33) {
-                volumeIcon.className = 'fas fa-volume-off volume-icon low';
-            } else if (value < 66) {
-                volumeIcon.className = 'fas fa-volume-down volume-icon medium';
-            } else {
-                volumeIcon.className = 'fas fa-volume-up volume-icon high';
-            }
-        }
-
-        function switchToSearch() {
-            switchTab('search-tab');
-        }
-
-        function switchTab(tabId) {
-            tabButtons.forEach(button => button.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-            currentMode = tabId.replace('-tab', '');
-            currentPlaylistId = null;
-            switch (currentMode) {
-                case 'search':
-                    currentPlaylist = searchResultsData;
-                    renderSearchResults();
-                    break;
-                case 'favorites':
-                    currentPlaylist = favorites;
-                    renderFavorites();
-                    break;
-                case 'history':
-                    currentPlaylist = history;
-                    renderHistory();
-                    break;
-                case 'playlists':
-                    const playlistsTab = document.getElementById('playlists-tab');
-                    playlistsTab.innerHTML = `
-                        <div class="playlists-container">
-                            <button id="create-playlist-btn"><i class="fas fa-plus"></i> Create New Playlist</button>
-                            <div id="playlists-list"></div>
-                        </div>
-                    `;
-                    renderPlaylists();
-                    document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
-                    break;
-                case 'contact':
-                case 'changelogs':
-                case 'disclaimer':
-                case 'dashboard':
-                    currentPlaylist = currentSong ? [currentSong] : [];
-                    break;
-            }
-        }
-
-        function playSong(index, source) {
-            if (index < 0 || index >= currentPlaylist.length) return;
-            currentSongIndex = index;
-            currentSong = currentPlaylist[index];
-            updateSongInfo();
-
-            fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,status,snippet&id=${currentSong.videoId}&key=${apiKey}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.items || data.items.length === 0 || !data.items[0].status.embeddable) {
-                        currentSongTitle.textContent = 'This track cannot be played';
-                        currentSong = null;
-                        return;
-                    }
-                    const duration = data.items[0].contentDetails.duration;
-                    trackDuration = parseISO8601Duration(duration);
-                    currentTime = 0;
-                    progress.style.width = '0%';
-                    currentTimeEl.textContent = '0:00';
-                    durationEl.textContent = formatTime(trackDuration);
-
-                    if (player) {
-                        player.loadVideoById(currentSong.videoId);
-                    } else {
-                        player = new YT.Player('music-player', {
-                            height: '0',
-                            width: '0',
-                            videoId: currentSong.videoId,
-                            playerVars: { 'autoplay': 1, 'controls': 0, 'showinfo': 0, 'rel': 0, 'modestbranding': 1 },
-                            events: {
-                                'onReady': onPlayerReady,
-                                'onStateChange': onPlayerStateChange,
-                                'onError': onPlayerError
-                            }
-                        });
-                    }
-                    addToHistory(currentSong);
-                })
-                .catch(error => {
-                    console.error('Error fetching video details:', error);
-                    currentSongTitle.textContent = 'Error loading track';
-                    currentSong = null;
-                    updateSongInfo();
-                });
-        }
-
-        function onPlayerReady(event) {
-            event.target.playVideo();
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                clearInterval(progressInterval);
-                progressInterval = setInterval(updateProgress, 250);
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                clearInterval(progressInterval);
-            } else if (event.data === YT.PlayerState.ENDED) {
-                playNext();
-            }
-        }
-
-        function onPlayerError(event) {
-            console.error('Player error:', event.data);
-            pausePlayback();
-        }
-
-        function playNext() {
-            if (currentPlaylist.length === 0 || !currentSong) return;
-            let newIndex = currentSongIndex + 1;
-            if (newIndex >= currentPlaylist.length) newIndex = 0;
-            playSong(newIndex, currentMode);
-        }
-
-        function playPrevious() {
-            if (currentPlaylist.length === 0 || !currentSong) return;
-            let newIndex = currentSongIndex - 1;
-            if (newIndex < 0) newIndex = currentPlaylist.length - 1;
-            playSong(newIndex, currentMode);
-        }
-
-        function pausePlayback() {
-            if (player) player.pauseVideo();
-            isPlaying = false;
-            currentSongIndex = -1;
-            currentSong = null;
-            progress.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
-            updateSongInfo();
-        }
-
-        function createMusicCard(song, index, source, removable = false) {
-            const musicCard = document.createElement('div');
-            musicCard.className = 'music-card';
-            musicCard.dataset.videoId = song.videoId;
-            musicCard.innerHTML = `
-                <img src="${song.thumbnail}" alt="${song.title}">
-                <div class="music-info">
-                    <h3>${song.title}</h3>
-                    <p>${song.artist}</p>
-                    <p class="duration">${song.duration}</p>
-                </div>
-                <button class="favorite-btn ${isFavorited(song.videoId) ? 'liked' : ''}">
-                    <i class="fas fa-heart"></i>
-                </button>
-                <button class="add-to-playlist-btn">
-                    <i class="fas fa-plus"></i>
-                </button>
-            `;
-            musicCard.addEventListener('click', () => playSong(index, source));
-            musicCard.querySelector('.favorite-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFavorite(song);
-            });
-            musicCard.querySelector('.add-to-playlist-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                addToPlaylist(song);
-            });
-
-            if (removable) {
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (source === 'history') {
-                        history.splice(index, 1);
-                        stats.songsPlayed = Math.max(0, stats.songsPlayed - 1);
-                        saveHistory();
-                        saveStats();
-                        renderHistory();
-                        updateStatsDisplay();
-                    } else if (source === 'playlist') {
-                        const pl = playlists.find(p => p.id === currentPlaylistId);
-                        if (pl) {
-                            pl.songs.splice(index, 1);
-                            savePlaylists();
-                            viewPlaylist(currentPlaylistId);
-                        }
-                    }
-                });
-                musicCard.appendChild(removeBtn);
-            }
-
-            return musicCard;
-        }
-
-        function renderSearchResults() {
-            if (searchResultsData.length === 0) {
-                searchResults.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-music"></i>
-                        <p>No results found</p>
-                        <p>Try a different search term</p>
-                    </div>
-                `;
-                return;
-            }
-            searchResults.innerHTML = '';
-            searchResultsData.forEach((song, index) => {
-                searchResults.appendChild(createMusicCard(song, index, 'search'));
-            });
-        }
-
-        function renderFavorites() {
-            if (favorites.length === 0) {
-                favoritesResults.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-heart"></i>
-                        <p>No favorites yet</p>
-                        <p>Like songs to add them here</p>
-                    </div>
-                `;
-                return;
-            }
-            favoritesResults.innerHTML = '';
-            favorites.forEach((song, index) => {
-                favoritesResults.appendChild(createMusicCard(song, index, 'favorites'));
-            });
-        }
-
-        function renderHistory() {
-            if (history.length === 0) {
-                historyResults.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-history"></i>
-                        <p>No recently played songs</p>
-                        <p>Play songs to add them here</p>
-                    </div>
-                `;
-                return;
-            }
-            historyResults.innerHTML = '';
-            history.forEach((song, index) => {
-                historyResults.appendChild(createMusicCard(song, index, 'history', true));
-            });
-        }
-
-        function renderPlaylists() {
-            const list = document.getElementById('playlists-list');
-            if (!list) return;
-            list.innerHTML = '';
-            if (playlists.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-list-ul"></i>
-                        <p>No playlists yet</p>
-                        <p>Create one to get started</p>
-                    </div>
-                `;
-                return;
-            }
-            const statsDiv = document.createElement('div');
-            statsDiv.className = 'home-stats';
-            statsDiv.style.marginBottom = '1.12rem';
-            statsDiv.innerHTML = `
-                <div class="stat-card">
-                    <i class="fas fa-list-ul stat-icon"></i>
-                    <div class="stat-number">${playlists.length}</div>
-                    <div class="stat-label">Playlists Created</div>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-music stat-icon"></i>
-                    <div class="stat-number">${playlists.reduce((sum, p) => sum + p.songs.length, 0)}</div>
-                    <div class="stat-label">Songs in Playlists</div>
-                </div>
-            `;
-            list.appendChild(statsDiv);
-            playlists.forEach(pl => {
-                const card = document.createElement('div');
-                card.className = 'playlist-card';
-                card.innerHTML = `
-                    <img src="${pl.image || 'https://via.placeholder.com/28'}" class="playlist-img">
-                    <h3>${pl.name}</h3>
-                    <p>${pl.songs.length} songs</p>
-                    <button class="edit-pl"><i class="fas fa-edit"></i></button>
-                    <button class="delete-pl"><i class="fas fa-trash"></i></button>
-                `;
-                card.addEventListener('click', () => viewPlaylist(pl.id));
-                card.querySelector('.edit-pl').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    editPlaylist(pl.id);
-                });
-                card.querySelector('.delete-pl').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (confirm(`Delete playlist "${pl.name}"?`)) {
-                        playlists = playlists.filter(p => p.id !== pl.id);
-                        savePlaylists();
-                        renderPlaylists();
-                    }
-                });
-                list.appendChild(card);
-            });
-        }
-
-        function createPlaylist() {
-            const name = prompt('Enter playlist name:');
-            if (!name) return;
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                let image = 'https://via.placeholder.com/28';
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = ev => {
-                        image = ev.target.result;
-                        finalizeCreate(name, image);
-                    };
-                    reader.readAsDataURL(file);
-                    return;
-                }
-                finalizeCreate(name, image);
+      return new Promise((resolve, reject) => {
+        const checkRequest = store.get(username);
+        checkRequest.onsuccess = () => {
+          if (checkRequest.result) {
+            reject('Username already exists');
+          } else {
+            const putRequest = store.put(user);
+            putRequest.onsuccess = () => {
+              console.log(`User ${username} registered successfully, isAdmin: ${user.isAdmin}`);
+              resolve(true);
             };
-            input.click();
-        }
+            putRequest.onerror = () => reject('Failed to register user');
+          }
+        };
+        checkRequest.onerror = () => reject('Error checking username');
+      });
+    }
 
-        function finalizeCreate(name, image) {
-            const newPlaylist = { id: Date.now(), name, image, songs: [] };
-            playlists.push(newPlaylist);
-            savePlaylists();
-            renderPlaylists();
-        }
+    async function login(username, password) {
+      if (!username || !password) throw new Error('Username and password are required');
+      const db = await initDB();
+      const tx = db.transaction(['users'], 'readonly');
+      const store = tx.objectStore('users');
+      const hashedPassword = await hashPassword(password);
 
-        function editPlaylist(id) {
-            const pl = playlists.find(p => p.id === id);
-            if (!pl) return;
-            const newName = prompt('Enter new playlist name:', pl.name);
-            if (newName === null) return;
-            if (newName) pl.name = newName;
-            const changeImage = confirm('Change playlist image?');
-            if (changeImage) {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = e => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = ev => {
-                            pl.image = ev.target.result;
-                            finalizeEdit(id);
-                        };
-                        reader.readAsDataURL(file);
-                        return;
-                    }
-                    finalizeEdit(id);
-                };
-                input.click();
-            } else {
-                finalizeEdit(id);
-            }
-        }
+      return new Promise((resolve, reject) => {
+        const request = store.get(username);
+        request.onsuccess = () => {
+          const user = request.result;
+          if (user && user.password === hashedPassword) {
+            console.log(`User ${username} logged in successfully, isAdmin: ${user.isAdmin}`);
+            resolve(user);
+          } else {
+            reject('Invalid username or password');
+          }
+        };
+        request.onerror = () => reject('Login error');
+      });
+    }
 
-        function finalizeEdit(id) {
-            savePlaylists();
-            if (currentPlaylistId === id) {
-                viewPlaylist(id);
-            } else {
-                renderPlaylists();
-            }
-        }
+    // Thread and Reply Functions
+    async function saveThread(thread) {
+      const db = await initDB();
+      const tx = db.transaction(['threads'], 'readwrite');
+      const store = tx.objectStore('threads');
+      return new Promise((resolve, reject) => {
+        const request = store.put(thread);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
 
-        function viewPlaylist(id) {
-            const pl = playlists.find(p => p.id === id);
-            if (!pl) return;
-            currentPlaylist = pl.songs;
-            currentMode = 'playlist';
-            currentPlaylistId = id;
-            const tab = document.getElementById('playlists-tab');
-            tab.innerHTML = `
-                <div class="playlist-view">
-                    <button id="back-to-playlists"><i class="fas fa-arrow-left"></i> Back to Playlists</button>
-                    <h2><img src="${pl.image || 'https://via.placeholder.com/28'}" class="playlist-img" style="margin-right: 0.56rem;"> ${pl.name} <button id="edit-playlist-btn"><i class="fas fa-edit"></i></button></h2>
-                    <div id="playlist-songs" class="search-results"></div>
-                </div>
-            `;
-            document.getElementById('back-to-playlists').addEventListener('click', () => switchTab('playlists-tab'));
-            document.getElementById('edit-playlist-btn').addEventListener('click', () => editPlaylist(id));
-            const songsDiv = document.getElementById('playlist-songs');
-            if (pl.songs.length === 0) {
-                songsDiv.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-music"></i>
-                        <p>No songs in this playlist</p>
-                        <p>Add songs from search or other tabs</p>
-                    </div>
-                `;
-                return;
-            }
-            pl.songs.forEach((song, index) => {
-                songsDiv.appendChild(createMusicCard(song, index, 'playlist', true));
-            });
-        }
+    async function saveReply(reply) {
+      const db = await initDB();
+      const tx = db.transaction(['replies'], 'readwrite');
+      const store = tx.objectStore('replies');
+      return new Promise((resolve, reject) => {
+        const request = store.put(reply);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
 
-        function addToPlaylist(song) {
-            if (playlists.length === 0) {
-                alert('No playlists available. Create one first in the Playlists tab.');
-                return;
-            }
-            const plNames = playlists.map(p => p.name).join(', ');
-            const choice = prompt(`Enter the name of the playlist to add to (available: ${plNames}):`);
-            if (!choice) return;
-            const pl = playlists.find(p => p.name.toLowerCase() === choice.toLowerCase());
-            if (!pl) {
-                alert('Playlist not found.');
-                return;
-            }
-            if (pl.songs.some(s => s.videoId === song.videoId)) {
-                alert('Song is already in this playlist.');
-                return;
-            }
-            pl.songs.push(song);
-            savePlaylists();
-            if (currentMode === 'playlist' && currentPlaylistId === pl.id) {
-                viewPlaylist(pl.id);
-            }
-            alert('Song added to playlist!');
-        }
+    async function deleteThread(threadId) {
+      const db = await initDB();
+      const tx = db.transaction(['threads', 'replies'], 'readwrite');
+      const threadStore = tx.objectStore('threads');
+      const replyStore = tx.objectStore('replies');
+      
+      // Delete thread
+      await new Promise((resolve, reject) => {
+        const request = threadStore.delete(threadId);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
 
-        async function searchMusic(query) {
-            if (!query.trim()) {
-                searchResults.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search"></i>
-                        <p>Search for songs online</p>
-                        <p>Please enter a search term</p>
-                    </div>
-                `;
-                return;
-            }
-            searchResults.innerHTML = `
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                </div>
-            `;
-            try {
-                stats.songsSearched++;
-                saveStats();
-                updateStatsDisplay();
-                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${apiKey}&type=video&videoCategoryId=10&maxResults=50`);
-                if (!response.ok) throw new Error('Failed to fetch music results');
-                const data = await response.json();
-                const videoIds = data.items.map(item => item.id.videoId).join(',');
-                const detailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${videoIds}&key=${apiKey}`);
-                const detailsData = await detailsResponse.json();
-                searchResultsData = data.items.map((item, index) => {
-                    const details = detailsData.items[index];
-                    const duration = details ? parseISO8601Duration(details.contentDetails.duration) : 0;
-                    return {
-                        videoId: item.id.videoId,
-                        title: item.snippet.title,
-                        artist: item.snippet.channelTitle,
-                        thumbnail: item.snippet.thumbnails.medium.url,
-                        duration: formatTime(duration)
-                    };
-                });
-                currentPlaylist = searchResultsData;
-                renderSearchResults();
-            } catch (error) {
-                console.error('Search failed:', error);
-                searchResults.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Search failed</p>
-                        <p>Please try again later</p>
-                    </div>
-                `;
-            }
-        }
-
-        function togglePlay() {
-            if (!player || !currentSong) {
-                if (currentPlaylist.length > 0 && currentSongIndex >= 0) {
-                    playSong(currentSongIndex, currentMode);
-                }
-                return;
-            }
-            if (isPlaying) {
-                player.pauseVideo();
-            } else {
-                player.playVideo();
-            }
-        }
-
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchMusic(this.value);
-            }
+      // Delete associated replies
+      const replies = await getReplies(threadId);
+      for (const reply of replies) {
+        await new Promise((resolve, reject) => {
+          const request = replyStore.delete(reply.id);
+          request.onsuccess = () => resolve();
+          request.onerror = () => reject(request.error);
         });
+      }
+    }
 
-        playBtn.addEventListener('click', togglePlay);
-        prevBtn.addEventListener('click', playPrevious);
-        nextBtn.addEventListener('click', playNext);
+    async function getAllThreads() {
+      const db = await initDB();
+      const tx = db.transaction(['threads'], 'readonly');
+      const store = tx.objectStore('threads');
+      return new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
 
-        progressBar.addEventListener('click', (e) => {
-            if (!currentSong || trackDuration === 0) return;
-            const rect = progressBar.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const percent = clickX / rect.width;
-            const newTime = percent * trackDuration;
-            player.seekTo(newTime);
-            currentTime = newTime;
-            updateProgress();
-        });
+    async function getReplies(threadId) {
+      const db = await initDB();
+      const tx = db.transaction(['replies'], 'readonly');
+      const store = tx.objectStore('replies');
+      const replies = await new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      return replies.filter(reply => reply.threadId === threadId);
+    }
 
-        volumeSlider.addEventListener('input', function() {
-            const volume = this.value / 100;
-            if (player) player.setVolume(this.value);
-            updateVolumeIcon(this.value);
-        });
+    // Reaction Functions
+    async function updateReaction(itemId, type, username, isReply = false) {
+      const db = await initDB();
+      const storeName = isReply ? 'replies' : 'threads';
+      const tx = db.transaction([storeName], 'readwrite');
+      const store = tx.objectStore(storeName);
+      
+      return new Promise((resolve, reject) => {
+        const request = store.get(itemId);
+        request.onsuccess = () => {
+          const item = request.result || { id: itemId, reactions: {} };
+          item.reactions = item.reactions || { like: 0, love: 0, wow: 0 };
+          item.userReactions = item.userReactions || {};
 
-        likeBtn.addEventListener('click', () => {
-            toggleFavorite(currentSong);
-        });
+          // Remove previous reaction by this user
+          if (item.userReactions[username]) {
+            const prevReaction = itemIrc(item.userReactions[username]);
+            item.reactions[prevReaction]--;
+            delete item.userReactions[username];
+          }
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                switchTab(button.dataset.tab);
-            });
-        });
+          // Add new reaction
+          if (type) {
+            item.reactions[type] = (item.reactions[type] || 0) + 1;
+            item.userReactions[username] = type;
+          }
 
-        // Initialize stats display
-        updateStatsDisplay();
+          const updateRequest = store.put(item);
+          updateRequest.onsuccess = () => resolve(item);
+          updateRequest.onerror = () => reject(request.error);
+        };
+        request.onerror = () => reject(request.error);
+      });
+    }
 
-        // Initialize volume
-        if (player) {
-            player.setVolume(volumeSlider.value);
-            updateVolumeIcon(volumeSlider.value);
+    async function getReaction(itemId, isReply = false) {
+      const db = await initDB();
+      const storeName = isReply ? 'replies' : 'threads';
+      const tx = db.transaction([storeName], 'readonly');
+      const store = tx.objectStore(storeName);
+      return new Promise((resolve, reject) => {
+        const request = store.get(itemId);
+        request.onsuccess = () => resolve(request.result || { reactions: { like: 0, love: 0, wow: 0 }, userReactions: {} });
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // Render Threads and Replies
+    async function renderThreads() {
+      const threads = await getAllThreads();
+      const threadList = document.getElementById('thread-list');
+      threadList.innerHTML = '';
+      for (const thread of threads) {
+        const threadReaction = await getReaction(thread.id);
+        const threadEl = document.createElement('div');
+        threadEl.className = 'thread';
+        threadEl.innerHTML = `
+          <div class="thread-meta">
+            <span>${thread.username}${thread.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
+            <span>${new Date(thread.timestamp).toLocaleString()}</span>
+          </div>
+          <h3>${thread.title}</h3>
+          <p>${thread.content}</p>
+          ${thread.image ? `<img src="${thread.image}" alt="Thread Image">` : ''}
+          <div class="reactions">
+            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'like' ? 'active' : ''}" data-id="${thread.id}" data-type="like">👍 Like (${threadReaction.reactions.like || 0})</button>
+            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'love' ? 'active' : ''}" data-id="${thread.id}" data-type="love">❤️ Love (${threadReaction.reactions.love || 0})</button>
+            <button class="reaction-btn ${threadReaction.userReactions[currentUser.username] === 'wow' ? 'active' : ''}" data-id="${thread.id}" data-type="wow">😮 Wow (${threadReaction.reactions.wow || 0})</button>
+          </div>
+          ${currentUser && currentUser.isAdmin ? `<button class="delete-btn" data-id="${thread.id}">Delete</button>` : ''}
+          <button class="reply-btn" data-id="${thread.id}">Reply</button>
+          <div class="reply-form" id="reply-form-${thread.id}" style="display: none;">
+            <textarea id="reply-content-${thread.id}" placeholder="Write your reply..."></textarea>
+            <button class="submit-reply" data-id="${thread.id}">Submit Reply</button>
+          </div>
+          <div class="reply-section" id="replies-${thread.id}"></div>
+        `;
+        threadList.appendChild(threadEl);
+
+        // Render replies
+        const replies = await getReplies(thread.id);
+        const replySection = threadEl.querySelector(`#replies-${thread.id}`);
+        for (const reply of replies) {
+          const replyReaction = await getReaction(reply.id, true);
+          const replyEl = document.createElement('div');
+          replyEl.className = 'reply';
+          replyEl.innerHTML = `
+            <div class="thread-meta">
+              <span>${reply.username}${reply.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
+              <span>${new Date(reply.timestamp).toLocaleString()}</span>
+            </div>
+            <p>${reply.content}</p>
+            <div class="reactions">
+              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'like' ? 'active' : ''}" data-id="${reply.id}" data-type="like" data-reply="true">👍 Like (${replyReaction.reactions.like || 0})</button>
+              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'love' ? 'active' : ''}" data-id="${reply.id}" data-type="love" data-reply="true">❤️ Love (${replyReaction.reactions.love || 0})</button>
+              <button class="reaction-btn ${replyReaction.userReactions[currentUser.username] === 'wow' ? 'active' : ''}" data-id="${reply.id}" data-type="wow" data-reply="true">😮 Wow (${replyReaction.reactions.wow || 0})</button>
+            </div>
+          `;
+          replySection.appendChild(replyEl);
         }
-    </script>
+      }
+
+      // Add event listeners
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.style.display = currentUser && currentUser.isAdmin ? 'block' : 'none';
+        btn.addEventListener('click', async () => {
+          const threadId = btn.dataset.id;
+          await deleteThread(threadId);
+          broadcastDelete(threadId);
+          renderThreads();
+        });
+      });
+
+      document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const threadId = btn.dataset.id;
+          const replyForm = document.getElementById(`reply-form-${threadId}`);
+          replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+        });
+      });
+
+      document.querySelectorAll('.submit-reply').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const threadId = btn.dataset.id;
+          const content = document.getElementById(`reply-content-${threadId}`).value.trim();
+          if (content) {
+            const reply = {
+              id: crypto.randomUUID(),
+              threadId,
+              username: currentUser.username,
+              content,
+              timestamp: Date.now(),
+              reactions: { like: 0, love: 0, wow: 0 },
+              userReactions: {}
+            };
+            await saveReply(reply);
+            broadcastReply(reply);
+            document.getElementById(`reply-content-${threadId}`).value = '';
+            document.getElementById(`reply-form-${threadId}`).style.display = 'none';
+            renderThreads();
+          }
+        });
+      });
+
+      document.querySelectorAll('.reaction-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const itemId = btn.dataset.id;
+          const type = btn.dataset.type;
+          const isReply = btn.dataset.reply === 'true';
+          const username = currentUser.username;
+          const item = await updateReaction(itemId, type, username, isReply);
+          broadcastReaction(itemId, type, username, isReply);
+          renderThreads();
+        });
+      });
+    }
+
+    // WebRTC Peer Connection
+    let peer = null;
+    let currentUser = null;
+    const peers = [];
+
+    function initPeer() {
+      peer = new SimplePeer({ initiator: true, trickle: false });
+      peer.on('error', err => console.error('Peer error:', err));
+      peer.on('signal', data => {
+        document.getElementById('peer-id').textContent = JSON.stringify(data);
+      });
+      peer.on('connect', () => {
+        console.log('Peer connected');
+        peers.push(peer);
+      });
+      peer.on('data', async data => {
+        try {
+          const message = JSON.parse(data);
+          if (message.type === 'thread') {
+            await saveThread(message.thread);
+            renderThreads();
+          } else if (message.type === 'reply') {
+            await saveReply(message.reply);
+            renderThreads();
+          } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
+            await deleteThread(message.threadId);
+            renderThreads();
+          } else if (message.type === 'reaction') {
+            await updateReaction(message.itemId, message.reactionType, message.username, message.isReply);
+            renderThreads();
+          }
+        } catch (err) {
+          console.error('Error processing peer data:', err);
+        }
+      });
+    }
+
+    function connectToPeer(remoteId) {
+      const newPeer = new SimplePeer({ trickle: false });
+      newPeer.on('error', err => console.error('Peer error:', err));
+      newPeer.on('connect', () => {
+        console.log('Connected to remote peer');
+        peers.push(newPeer);
+      });
+      newPeer.on('data', async data => {
+        try {
+          const message = JSON.parse(data);
+          if (message.type === 'thread') {
+            await saveThread(message.thread);
+            renderThreads();
+          } else if (message.type === 'reply') {
+            await saveReply(message.reply);
+            renderThreads();
+          } else if (message.type === 'delete' && currentUser.username.toLowerCase() !== 'milky') {
+            await deleteThread(message.threadId);
+            renderThreads();
+          } else if (message.type === 'reaction') {
+            await updateReaction(message.itemId, message.reactionType, message.username, message.isReply);
+            renderThreads();
+          }
+        } catch (err) {
+          console.error('Error processing peer data:', err);
+        }
+      });
+      try {
+        newPeer.signal(JSON.parse(remoteId));
+      } catch (err) {
+        document.getElementById('auth-error').textContent = 'Invalid Peer ID';
+      }
+    }
+
+    function broadcastThread(thread) {
+      const message = { type: 'thread', thread };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    function broadcastReply(reply) {
+      const message = { type: 'reply', reply };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    function broadcastDelete(threadId) {
+      const message = { type: 'delete', threadId };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    function broadcastReaction(itemId, reactionType, username, isReply) {
+      const message = { type: 'reaction', itemId, reactionType, username, isReply };
+      peers.forEach(p => p.send(JSON.stringify(message)));
+    }
+
+    // Event Listeners
+    document.getElementById('signup-btn').addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('auth-error');
+      errorEl.textContent = '';
+      try {
+        await signup(username, password);
+        errorEl.textContent = 'Signed up successfully! Please log in.';
+        errorEl.className = 'success';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Sign-up failed';
+        errorEl.className = 'error';
+      }
+    });
+
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('auth-error');
+      errorEl.textContent = '';
+      try {
+        currentUser = await login(username, password);
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('forum-section').style.display = 'block';
+        document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
+        initPeer();
+        renderThreads();
+      } catch (err) {
+        errorEl.textContent = err.message || 'Login failed';
+        errorEl.className = 'error';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      currentUser = null;
+      document.getElementById('auth-section').style.display = 'block';
+      document.getElementById('forum-section').style.display = 'none';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('auth-error').textContent = '';
+      peers.forEach(p => p.destroy());
+      peers.length = 0;
+      if (peer) peer.destroy();
+    });
+
+    document.getElementById('connect-peer-btn').addEventListener('click', () => {
+      const remoteId = document.getElementById('remote-peer-id').value;
+      if (remoteId) {
+        connectToPeer(remoteId);
+      } else {
+        document.getElementById('auth-error').textContent = 'Please enter a Peer ID';
+        document.getElementById('auth-error').className = 'error';
+      }
+    });
+
+    document.getElementById('create-thread-btn').addEventListener('click', async () => {
+      const title = document.getElementById('thread-title').value.trim();
+      const content = document.getElementById('thread-content').value.trim();
+      const imageInput = document.getElementById('thread-image');
+      let image = null;
+
+      if (imageInput.files[0]) {
+        image = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(imageInput.files[0]);
+        });
+      }
+
+      if (title && content) {
+        const thread = {
+          id: crypto.randomUUID(),
+          username: currentUser.username,
+          title,
+          content,
+          image,
+          timestamp: Date.now(),
+          reactions: { like: 0, love: 0, wow: 0 },
+          userReactions: {}
+        };
+        await saveThread(thread);
+        broadcastThread(thread);
+        renderThreads();
+        document.getElementById('thread-title').value = '';
+        document.getElementById('thread-content').value = '';
+        imageInput.value = '';
+      } else {
+        document.getElementById('auth-error').textContent = 'Title and content are required';
+        document.getElementById('auth-error').className = 'error';
+      }
+    });
+
+    // Initialize DB on load
+    initDB().catch(err => console.error('DB initialization failed:', err));
+  </script>
 </body>
 </html>
