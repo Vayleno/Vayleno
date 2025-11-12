@@ -98,11 +98,11 @@
             background: var(--secondary-color);
         }
 
-        .forum-list, .chat-section, .announcement {
+        .forum-list, .chat-section, .announcement, .users-section, .private-chat {
             margin-bottom: 20px;
         }
 
-        .forum-card, .reply-card, .chat-message {
+        .forum-card, .reply-card, .chat-message, .user-card {
             background: var(--card-bg);
             padding: 15px;
             margin: 10px 0;
@@ -110,7 +110,7 @@
             transition: var(--transition);
         }
 
-        .forum-card:hover, .reply-card:hover {
+        .forum-card:hover, .reply-card:hover, .user-card:hover {
             transform: scale(1.02);
         }
 
@@ -169,7 +169,6 @@
             <div class="announcement">
                 <h3>Announcements</h3>
                 <p id="announcement-text">Welcome to Milky Forum! Enjoy discussing topics locally.</p>
-                <!-- Admin can edit if needed -->
             </div>
 
             <!-- Forum Creation -->
@@ -186,12 +185,28 @@
                 <div id="forums-container"></div>
             </div>
 
-            <!-- Chat Section -->
+            <!-- Public Chat Section -->
             <div class="chat-section">
                 <h3>Public Chat</h3>
                 <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #2c2c2c; padding: 10px; border-radius: var(--border-radius);"></div>
                 <input id="chat-input" type="text" placeholder="Type a message...">
                 <button id="send-chat-btn">Send</button>
+            </div>
+
+            <!-- Users Section for Private Chats and Ban -->
+            <div class="users-section">
+                <h3>Users</h3>
+                <input id="user-search" type="text" placeholder="Search users...">
+                <div id="users-list"></div>
+            </div>
+
+            <!-- Private Chat Section -->
+            <div id="private-chat" class="private-chat hidden">
+                <h3>Private Chat with <span id="chat-with"></span></h3>
+                <div id="private-messages" style="height: 200px; overflow-y: auto; background: #2c2c2c; padding: 10px; border-radius: var(--border-radius);"></div>
+                <input id="private-input" type="text" placeholder="Type a message...">
+                <button id="send-private-btn">Send</button>
+                <button id="close-private-btn">Close</button>
             </div>
         </div>
     </div>
@@ -202,12 +217,12 @@
             USERS: 'forum_users',
             SESSION: 'forum_session',
             FORUMS: 'forum_forums',
-            CHAT: 'forum_chat',
+            PUBLIC_CHAT: 'forum_public_chat',
+            PRIVATE_CHATS: 'forum_private_chats',
             ANNOUNCEMENT: 'forum_announcement',
-            BANNED: 'forum_banned' // Array of banned usernames
+            BANNED: 'forum_banned'
         };
 
-        // Admin username
         const ADMIN_USER = 'Milky';
 
         // Initialize data if not present
@@ -217,8 +232,11 @@
         if (!localStorage.getItem(STORAGE_KEYS.FORUMS)) {
             localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify([]));
         }
-        if (!localStorage.getItem(STORAGE_KEYS.CHAT)) {
-            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify([]));
+        if (!localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT)) {
+            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS)) {
+            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify({}));
         }
         if (!localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT)) {
             localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT, 'Welcome to Milky Forum! Enjoy discussing topics locally.');
@@ -245,12 +263,29 @@
         const chatInput = document.getElementById('chat-input');
         const sendChatBtn = document.getElementById('send-chat-btn');
         const announcementText = document.getElementById('announcement-text');
+        const userSearch = document.getElementById('user-search');
+        const usersList = document.getElementById('users-list');
+        const privateChat = document.getElementById('private-chat');
+        const chatWith = document.getElementById('chat-with');
+        const privateMessages = document.getElementById('private-messages');
+        const privateInput = document.getElementById('private-input');
+        const sendPrivateBtn = document.getElementById('send-private-btn');
+        const closePrivateBtn = document.getElementById('close-private-btn');
+
+        let currentPrivateChatUser = null;
 
         // Check session
         function checkSession() {
             const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION));
             if (session) {
-                showMainSection(session.username);
+                const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
+                if (banned.includes(session.username)) {
+                    localStorage.removeItem(STORAGE_KEYS.SESSION);
+                    showAuthSection();
+                    authMessage.textContent = 'You are banned.';
+                } else {
+                    showMainSection(session.username);
+                }
             } else {
                 showAuthSection();
             }
@@ -266,10 +301,10 @@
             mainSection.classList.remove('hidden');
             currentUserSpan.innerHTML = `${username}${username === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}`;
             loadForums();
-            loadChat();
+            loadPublicChat();
+            loadUsers();
             announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
             if (username === ADMIN_USER) {
-                // Add admin controls if needed, e.g., edit announcement
                 const editAnnBtn = document.createElement('button');
                 editAnnBtn.textContent = 'Edit Announcement';
                 editAnnBtn.onclick = () => {
@@ -298,23 +333,24 @@
             }
             users.push({ username, password });
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-            login(username, password);
+            authMessage.textContent = 'Signed up successfully. Now login.';
         }
 
-        function login(inputUsername = null, inputPassword = null) {
-            const username = inputUsername || usernameInput.value.trim();
-            const password = inputPassword || passwordInput.value.trim();
+        function login() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
             if (!username || !password) {
                 authMessage.textContent = 'Please enter username and password.';
                 return;
             }
             const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
             const user = users.find(u => u.username === username && u.password === password);
-            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
             if (!user) {
                 authMessage.textContent = 'Invalid credentials.';
                 return;
-            } else if (banned.includes(username)) {
+            }
+            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
+            if (banned.includes(username)) {
                 authMessage.textContent = 'You are banned.';
                 return;
             }
@@ -351,57 +387,42 @@
             forums.forEach(forum => {
                 const forumCard = document.createElement('div');
                 forumCard.classList.add('forum-card');
+                let repliesHtml = forum.replies.map(reply => `
+                    <div class="reply-card">
+                        <p>${reply.content} - by ${reply.author}${reply.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} (to ${reply.replyTo})</p>
+                        ${isAdmin ? `<button class="delete-btn" onclick="deleteReply(${forum.id}, ${reply.id})">Delete</button>` : ''}
+                    </div>
+                `).join('');
                 forumCard.innerHTML = `
                     <h4>${forum.title}</h4>
                     <p>${forum.content} - by ${forum.author}${forum.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}</p>
-                    <div class="replies">
-                        ${forum.replies.map(reply => `
-                            <div class="reply-card">
-                                <p>${reply.content} - by ${reply.author}${reply.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} (to ${reply.replyTo})</p>
-                                ${isAdmin ? `<button class="delete-btn" onclick="deleteReply(${forum.id}, ${reply.id})">Delete</button>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div class="replies">${repliesHtml}</div>
                     <textarea class="reply-input" placeholder="Reply..."></textarea>
                     <button class="reply-btn">Reply</button>
                     ${isAdmin ? `<button class="delete-btn" onclick="deleteForum(${forum.id})">Delete Forum</button>` : ''}
                 `;
                 const replyInput = forumCard.querySelector('.reply-input');
                 const replyBtn = forumCard.querySelector('.reply-btn');
-                replyBtn.onclick = () => addReply(forum, replyInput.value.trim());
+                replyBtn.onclick = () => addReply(forum.id, replyInput.value.trim());
                 forumsContainer.appendChild(forumCard);
             });
         }
 
-        function addReply(forum, content) {
+        function addReply(forumId, content) {
             if (!content) return;
             const currentUser = getCurrentUser();
+            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
+            const forum = forums.find(f => f.id === forumId);
             const replies = forum.replies;
-
-            // Check if user can reply
             if (forum.author === currentUser && replies.length === 0) {
                 alert('You cannot reply to your own forum until someone else replies first.');
                 return;
             }
-
-            // Determine replyTo: last reply's author if replying to own, else forum author or last
             let replyTo = replies.length > 0 ? replies[replies.length - 1].author : forum.author;
-            if (forum.author === currentUser && replies.length > 0) {
-                // Reply to the last non-self reply? But spec says directed to that person, not themselves.
-                // Assuming replyTo is the last reply's author.
-            }
-
             const id = Date.now();
             replies.push({ id, content, author: currentUser, replyTo });
-            updateForum(forum.id, { replies });
-            loadForums();
-        }
-
-        function updateForum(id, updates) {
-            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
-            const forum = forums.find(f => f.id === id);
-            Object.assign(forum, updates);
             localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
+            loadForums();
         }
 
         function deleteForum(id) {
@@ -420,22 +441,22 @@
             loadForums();
         }
 
-        // Chat functions
-        function sendChat() {
+        // Public Chat functions
+        function sendPublicChat() {
             const content = chatInput.value.trim();
             if (!content) return;
             const username = getCurrentUser();
-            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT));
+            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT));
             const id = Date.now();
             chat.push({ id, content, author: username, timestamp: new Date().toISOString() });
-            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(chat));
+            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify(chat));
             chatInput.value = '';
-            loadChat();
+            loadPublicChat();
         }
 
-        function loadChat() {
+        function loadPublicChat() {
             chatMessages.innerHTML = '';
-            const chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT));
+            const chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT));
             const currentUser = getCurrentUser();
             const isAdmin = currentUser === ADMIN_USER;
             chat.forEach(msg => {
@@ -443,21 +464,42 @@
                 msgDiv.classList.add('chat-message');
                 msgDiv.innerHTML = `
                     <p>${msg.content} - by ${msg.author}${msg.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} at ${new Date(msg.timestamp).toLocaleTimeString()}</p>
-                    ${isAdmin ? `<button class="delete-btn" onclick="deleteChat(${msg.id})">Delete</button>` : ''}
+                    ${isAdmin ? `<button class="delete-btn" onclick="deletePublicChat(${msg.id})">Delete</button>` : ''}
                 `;
                 chatMessages.appendChild(msgDiv);
             });
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function deleteChat(id) {
+        function deletePublicChat(id) {
             if (!confirm('Delete message?')) return;
-            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT)).filter(m => m.id !== id);
-            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(chat));
-            loadChat();
+            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.PUBLIC_CHAT)).filter(m => m.id !== id);
+            localStorage.setItem(STORAGE_KEYS.PUBLIC_CHAT, JSON.stringify(chat));
+            loadPublicChat();
         }
 
-        // Ban user (admin only)
+        // Users and Ban
+        function loadUsers(query = '') {
+            usersList.innerHTML = '';
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
+            const currentUser = getCurrentUser();
+            const isAdmin = currentUser === ADMIN_USER;
+            const filteredUsers = users.filter(u => u.username !== currentUser && u.username.toLowerCase().includes(query.toLowerCase()));
+            filteredUsers.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.classList.add('user-card');
+                userCard.innerHTML = `
+                    <p>${user.username}${banned.includes(user.username) ? ' (Banned)' : ''}</p>
+                    <button class="chat-btn">Chat</button>
+                    ${isAdmin && !banned.includes(user.username) ? `<button class="ban-btn" onclick="banUser('${user.username}')">Ban</button>` : ''}
+                `;
+                const chatBtn = userCard.querySelector('.chat-btn');
+                chatBtn.onclick = () => openPrivateChat(user.username);
+                usersList.appendChild(userCard);
+            });
+        }
+
         function banUser(username) {
             if (getCurrentUser() !== ADMIN_USER || username === ADMIN_USER) return;
             if (confirm(`Ban ${username}?`)) {
@@ -465,17 +507,69 @@
                 if (!banned.includes(username)) {
                     banned.push(username);
                     localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
+                    loadUsers(userSearch.value.trim());
                 }
             }
         }
 
-        // To add ban buttons, e.g., in user lists or messages.
-        // For simplicity, add a button in main section for admin
-        if (getCurrentUser() === ADMIN_USER) {
-            const adminTools = document.createElement('div');
-            adminTools.innerHTML = '<h3>Admin Tools</h3><input id="ban-username" placeholder="Username to ban"><button id="ban-btn">Ban</button>';
-            mainSection.appendChild(adminTools);
-            document.getElementById('ban-btn').onclick = () => banUser(document.getElementById('ban-username').value.trim());
+        // Private Chat functions
+        function openPrivateChat(targetUser) {
+            if (currentPrivateChatUser === targetUser) return;
+            currentPrivateChatUser = targetUser;
+            chatWith.textContent = targetUser;
+            privateChat.classList.remove('hidden');
+            loadPrivateMessages();
+        }
+
+        function closePrivateChat() {
+            privateChat.classList.add('hidden');
+            currentPrivateChatUser = null;
+        }
+
+        function getPrivateChatKey(user1, user2) {
+            return [user1, user2].sort().join('_');
+        }
+
+        function sendPrivateMessage() {
+            const content = privateInput.value.trim();
+            if (!content || !currentPrivateChatUser) return;
+            const sender = getCurrentUser();
+            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
+            const key = getPrivateChatKey(sender, currentPrivateChatUser);
+            if (!privateChats[key]) privateChats[key] = [];
+            const id = Date.now();
+            privateChats[key].push({ id, content, sender, timestamp: new Date().toISOString() });
+            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify(privateChats));
+            privateInput.value = '';
+            loadPrivateMessages();
+        }
+
+        function loadPrivateMessages() {
+            if (!currentPrivateChatUser) return;
+            privateMessages.innerHTML = '';
+            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
+            const key = getPrivateChatKey(getCurrentUser(), currentPrivateChatUser);
+            const messages = privateChats[key] || [];
+            const currentUser = getCurrentUser();
+            const isAdmin = currentUser === ADMIN_USER;
+            messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('chat-message');
+                msgDiv.innerHTML = `
+                    <p>${msg.content} - by ${msg.sender} at ${new Date(msg.timestamp).toLocaleTimeString()}</p>
+                    ${isAdmin || msg.sender === currentUser ? `<button class="delete-btn" onclick="deletePrivateMessage('${key}', ${msg.id})">Delete</button>` : ''}
+                `;
+                privateMessages.appendChild(msgDiv);
+            });
+            privateMessages.scrollTop = privateMessages.scrollHeight;
+        }
+
+        function deletePrivateMessage(key, id) {
+            if (!confirm('Delete message?')) return;
+            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
+            privateChats[key] = privateChats[key].filter(m => m.id !== id);
+            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify(privateChats));
+            loadPrivateMessages();
         }
 
         function getCurrentUser() {
@@ -487,10 +581,14 @@
         window.addEventListener('storage', (event) => {
             if (event.key === STORAGE_KEYS.FORUMS) {
                 loadForums();
-            } else if (event.key === STORAGE_KEYS.CHAT) {
-                loadChat();
+            } else if (event.key === STORAGE_KEYS.PUBLIC_CHAT) {
+                loadPublicChat();
+            } else if (event.key === STORAGE_KEYS.PRIVATE_CHATS) {
+                loadPrivateMessages();
             } else if (event.key === STORAGE_KEYS.ANNOUNCEMENT) {
                 announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
+            } else if (event.key === STORAGE_KEYS.BANNED || event.key === STORAGE_KEYS.USERS) {
+                loadUsers(userSearch.value.trim());
             }
         });
 
@@ -499,12 +597,15 @@
         signupBtn.onclick = signup;
         logoutBtn.onclick = logout;
         createForumBtn.onclick = createForum;
-        sendChatBtn.onclick = sendChat;
+        sendChatBtn.onclick = sendPublicChat;
+        userSearch.oninput = () => loadUsers(userSearch.value.trim());
+        sendPrivateBtn.onclick = sendPrivateMessage;
+        closePrivateBtn.onclick = closePrivateChat;
 
         // Initial check
         checkSession();
 
-        // Background particles (simple canvas particles)
+        // Background particles
         const canvas = document.getElementById('background-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -542,8 +643,6 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
-
-        // For ban buttons in messages, etc., but for now, global ban tool for admin.
     </script>
 </body>
 </html>
