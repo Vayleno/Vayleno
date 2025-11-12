@@ -1,646 +1,549 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milky's Decentralized Forum</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Arial', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milky Forum</title>
+    <style>
+        /* CSS for black-themed, high-quality, animated UI/UX */
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #bb86fc;
+            --secondary-color: #03dac6;
+            --error-color: #cf6679;
+            --card-bg: #1e1e1e;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
 
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-    .container {
-      max-width: 900px;
-      width: 100%;
-      padding: 20px;
-    }
+        /* Live interactive background: animated gradient with particles */
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000000);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
 
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 2.5em;
-      animation: fadeIn 1s ease-in;
-    }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            padding: 20px;
+            z-index: 1;
+        }
 
-    #auth-section {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      animation: slideUp 0.5s ease;
-    }
+        .auth-section, .main-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .auth-section:hover, .main-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
 
-    #auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+        input, button, textarea {
+            background: #2c2c2c;
+            border: 1px solid #3c3c3c;
+            color: var(--text-color);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: var(--border-radius);
+            width: 100%;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
 
-    input, textarea {
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1em;
-      transition: border-color 0.3s;
-    }
+        input:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
 
-    input:focus, textarea:focus {
-      border-color: #6200ea;
-      outline: none;
-    }
+        button {
+            background: var(--accent-color);
+            color: #000;
+            cursor: pointer;
+        }
 
-    button {
-      padding: 12px;
-      background: #6200ea;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.3s, transform 0.2s;
-    }
+        button:hover {
+            background: var(--secondary-color);
+        }
 
-    button:hover {
-      background: #7c4dff;
-      transform: translateY(-2px);
-    }
+        .forum-list, .chat-section, .announcement {
+            margin-bottom: 20px;
+        }
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+        .forum-card, .reply-card, .chat-message {
+            background: var(--card-bg);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
 
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
-    }
+        .forum-card:hover, .reply-card:hover {
+            transform: scale(1.02);
+        }
 
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 10px;
-    }
+        .admin-badge {
+            background: var(--secondary-color);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
 
-    #forum-section {
-      display: none;
-    }
+        .delete-btn, .ban-btn {
+            background: var(--error-color);
+            margin-left: 10px;
+        }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
+        .hidden {
+            display: none;
+        }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+        }
 
-    #logout-btn {
-      background: #ff1744;
-    }
-
-    #logout-btn:hover {
-      background: #ff5252;
-    }
-
-    .create-thread {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-
-    .create-thread textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .thread {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      animation: slideIn 0.5s ease;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .thread h3 {
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .thread-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #666;
-      font-size: 0.9em;
-    }
-
-    .thread img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
-
-    .delete-btn {
-      background: #ff1744;
-      padding: 8px 15px;
-      margin-top: 10px;
-      display: none;
-    }
-
-    .delete-btn:hover {
-      background: #ff5252;
-    }
-
-    .reply-section {
-      margin-top: 15px;
-      padding-left: 20px;
-      border-left: 2px solid #ddd;
-    }
-
-    .reply-form {
-      display: none;
-      margin-top: 10px;
-    }
-
-    .reply-form textarea {
-      width: 100%;
-      min-height: 60px;
-    }
-
-    .reply {
-      margin-top: 10px;
-      padding: 10px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .verified-icon {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>') no-repeat center;
-      background-size: contain;
-    }
-
-    .owner-icon {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>') no-repeat center;
-      background-size: contain;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 10px;
-      }
-
-      h1 {
-        font-size: 1.8em;
-      }
-
-      #auth-section, .thread, .create-thread, header {
-        padding: 15px;
-      }
-    }
-  </style>
+        /* Modern icons (using simple text for now, can add Font Awesome later) */
+        .icon {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Auth Section -->
-    <div id="auth-section">
-      <h1>Welcome to Milky's Decentralized Forum</h1>
-      <div id="auth-form">
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button id="signup-btn">Sign Up</button>
-        <button id="login-btn">Log In</button>
-      </div>
-      <p id="auth-error" class="error"></p>
-    </div>
-
-    <!-- Forum Section -->
-    <div id="forum-section">
-      <header>
-        <h1>Milky's Decentralized Forum</h1>
-        <div class="user-info">
-          <span id="current-user"></span>
-          <button id="logout-btn">Log Out</button>
+    <canvas id="background-canvas"></canvas>
+    <div class="container">
+        <!-- Auth Section -->
+        <div id="auth-section" class="auth-section">
+            <h2>Login or Sign Up</h2>
+            <input id="username" type="text" placeholder="Username">
+            <input id="password" type="password" placeholder="Password">
+            <button id="login-btn">Login</button>
+            <button id="signup-btn">Sign Up</button>
+            <p id="auth-message"></p>
         </div>
-      </header>
 
-      <!-- Create Thread -->
-      <div class="create-thread">
-        <input type="text" id="thread-title" placeholder="Thread Title">
-        <textarea id="thread-content" placeholder="Write your post..."></textarea>
-        <input type="file" id="thread-image" accept="image/*">
-        <button id="create-thread-btn">Post Thread</button>
-      </div>
-
-      <!-- Thread List -->
-      <div id="thread-list"></div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
-  <script>
-    // Gun.js Setup
-    const gun = Gun({
-      peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://peer.gun.eco/gun'],
-      localStorage: true
-    });
-    const forum = gun.get('milky-forum');
-
-    // IndexedDB Setup
-    function initDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('forumDB', 6);
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains('users')) {
-            db.createObjectStore('users', { keyPath: 'username' });
-          }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // Utility Functions
-    async function hashPassword(password) {
-      const msgBuffer = new TextEncoder().encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    // Auth Functions
-    async function signup(username, password) {
-      if (!username || !password) throw new Error('Username and password are required');
-      const db = await initDB();
-      const tx = db.transaction(['users'], 'readwrite');
-      const store = tx.objectStore('users');
-      const hashedPassword = await hashPassword(password);
-      const user = {
-        username,
-        password: hashedPassword,
-        isAdmin: username.toLowerCase() === 'milky'
-      };
-
-      return new Promise((resolve, reject) => {
-        const checkRequest = store.get(username);
-        checkRequest.onsuccess = () => {
-          if (checkRequest.result) {
-            reject('Username already exists');
-          } else {
-            const putRequest = store.put(user);
-            putRequest.onsuccess = () => {
-              console.log(`User ${username} registered, isAdmin: ${user.isAdmin}`);
-              resolve(true);
-            };
-            putRequest.onerror = () => reject('Failed to register user');
-          }
-        };
-        checkRequest.onerror = () => reject('Error checking username');
-      });
-    }
-
-    async function login(username, password) {
-      if (!username || !password) throw new Error('Username and password are required');
-      const db = await initDB();
-      const tx = db.transaction(['users'], 'readonly');
-      const store = tx.objectStore('users');
-      const hashedPassword = await hashPassword(password);
-
-      return new Promise((resolve, reject) => {
-        const request = store.get(username);
-        request.onsuccess = () => {
-          const user = request.result;
-          if (user && user.password === hashedPassword) {
-            console.log(`User ${username} logged in, isAdmin: ${user.isAdmin}`);
-            resolve(user);
-          } else {
-            reject('Invalid username or password');
-          }
-        };
-        request.onerror = () => reject('Login error');
-      });
-    }
-
-    async function autoLogin() {
-      const username = localStorage.getItem('currentUser');
-      if (username) {
-        const db = await initDB();
-        const tx = db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        return new Promise((resolve, reject) => {
-          const request = store.get(username);
-          request.onsuccess = () => {
-            const user = request.result;
-            if (user) {
-              currentUser = user;
-              document.getElementById('auth-section').style.display = 'none';
-              document.getElementById('forum-section').style.display = 'block';
-              document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
-              subscribeToForum();
-              resolve(user);
-            } else {
-              localStorage.removeItem('currentUser');
-              reject('User not found');
-            }
-          };
-          request.onerror = () => reject('Auto-login error');
-        });
-      }
-      return Promise.reject('No user logged in');
-    }
-
-    // Gun.js Functions
-    function subscribeToForum() {
-      forum.get('threads').map().on((thread, id) => {
-        if (thread) {
-          renderThreads();
-        }
-      });
-      forum.get('replies').map().on((reply, id) => {
-        if (reply) {
-          renderThreads();
-        }
-      });
-    }
-
-    async function saveThread(thread) {
-      forum.get('threads').get(thread.id).put(thread);
-    }
-
-    async function saveReply(reply) {
-      forum.get('replies').get(reply.id).put(reply);
-    }
-
-    async function deleteThread(threadId) {
-      forum.get('threads').get(threadId).put(null);
-      forum.get('replies').map().once((reply, id) => {
-        if (reply && reply.threadId === threadId) {
-          forum.get('replies').get(id).put(null);
-        }
-      });
-    }
-
-    async function getAllThreads() {
-      return new Promise((resolve) => {
-        const threads = [];
-        forum.get('threads').map().once((thread, id) => {
-          if (thread) {
-            threads.push(thread);
-          }
-          resolve(threads);
-        });
-      });
-    }
-
-    async function getReplies(threadId) {
-      return new Promise((resolve) => {
-        const replies = [];
-        forum.get('replies').map().once((reply, id) => {
-          if (reply && reply.threadId === threadId) {
-            replies.push(reply);
-          }
-          resolve(replies);
-        });
-      });
-    }
-
-    // Render Threads and Replies
-    async function renderThreads() {
-      const threads = await getAllThreads();
-      const threadList = document.getElementById('thread-list');
-      threadList.innerHTML = '';
-      for (const thread of threads) {
-        const threadEl = document.createElement('div');
-        threadEl.className = 'thread';
-        const canReply = currentUser && currentUser.username.toLowerCase() !== thread.username.toLowerCase();
-        threadEl.innerHTML = `
-          <div class="thread-meta">
-            <span>${thread.username}${thread.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
-            <span>${new Date(thread.timestamp).toLocaleString()}</span>
-          </div>
-          <h3>${thread.title}</h3>
-          <p>${thread.content}</p>
-          ${thread.image ? `<img src="${thread.image}" alt="Thread Image">` : ''}
-          ${currentUser && currentUser.isAdmin ? `<button class="delete-btn" data-id="${thread.id}">Delete</button>` : ''}
-          <button class="reply-btn" data-id="${thread.id}" ${!canReply ? 'disabled' : ''}>${canReply ? 'Reply' : 'Cannot reply to own thread'}</button>
-          <div class="reply-form" id="reply-form-${thread.id}" style="display: none;">
-            <textarea id="reply-content-${thread.id}" placeholder="Write your reply..."></textarea>
-            <button class="submit-reply" data-id="${thread.id}">Submit Reply</button>
-          </div>
-          <div class="reply-section" id="replies-${thread.id}"></div>
-        `;
-        threadList.appendChild(threadEl);
-
-        const replies = await getReplies(thread.id);
-        const replySection = threadEl.querySelector(`#replies-${thread.id}`);
-        for (const reply of replies) {
-          const replyEl = document.createElement('div');
-          replyEl.className = 'reply';
-          replyEl.innerHTML = `
-            <div class="thread-meta">
-              <span>${reply.username}${reply.username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}</span>
-              <span>${new Date(reply.timestamp).toLocaleString()}</span>
+        <!-- Main Section -->
+        <div id="main-section" class="main-section hidden">
+            <div class="header">
+                <h2>Welcome, <span id="current-user"></span></h2>
+                <button id="logout-btn">Logout</button>
             </div>
-            <p>${reply.content}</p>
-          `;
-          replySection.appendChild(replyEl);
-        }
-      }
 
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.style.display = currentUser && currentUser.isAdmin ? 'block' : 'none';
-        btn.addEventListener('click', async () => {
-          const threadId = btn.dataset.id;
-          await deleteThread(threadId);
-        });
-      });
+            <!-- Announcement Section -->
+            <div class="announcement">
+                <h3>Announcements</h3>
+                <p id="announcement-text">Welcome to Milky Forum! Enjoy discussing topics locally.</p>
+                <!-- Admin can edit if needed -->
+            </div>
 
-      document.querySelectorAll('.reply-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const threadId = btn.dataset.id;
-          const replyForm = document.getElementById(`reply-form-${threadId}`);
-          replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-        });
-      });
+            <!-- Forum Creation -->
+            <div class="create-forum">
+                <h3>Create New Forum</h3>
+                <input id="forum-title" type="text" placeholder="Title">
+                <textarea id="forum-content" placeholder="Content"></textarea>
+                <button id="create-forum-btn">Create</button>
+            </div>
 
-      document.querySelectorAll('.submit-reply').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const threadId = btn.dataset.id;
-          const content = document.getElementById(`reply-content-${threadId}`).value.trim();
-          if (content) {
-            const threads = await getAllThreads();
-            const thread = threads.find(t => t.id === threadId);
-            if (thread.username.toLowerCase() === currentUser.username.toLowerCase()) {
-              document.getElementById('auth-error').textContent = 'Cannot reply to your own thread';
-              document.getElementById('auth-error').className = 'error';
-              return;
-            }
-            const reply = {
-              id: crypto.randomUUID(),
-              threadId,
-              username: currentUser.username,
-              content,
-              timestamp: Date.now()
-            };
-            await saveReply(reply);
-            document.getElementById(`reply-content-${threadId}`).value = '';
-            document.getElementById(`reply-form-${threadId}`).style.display = 'none';
-          }
-        });
-      });
-    }
+            <!-- Forum List -->
+            <div class="forum-list">
+                <h3>Forums</h3>
+                <div id="forums-container"></div>
+            </div>
 
-    // Event Listeners
-    let currentUser = null;
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <h3>Public Chat</h3>
+                <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #2c2c2c; padding: 10px; border-radius: var(--border-radius);"></div>
+                <input id="chat-input" type="text" placeholder="Type a message...">
+                <button id="send-chat-btn">Send</button>
+            </div>
+        </div>
+    </div>
 
-    document.getElementById('signup-btn').addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const errorEl = document.getElementById('auth-error');
-      errorEl.textContent = '';
-      try {
-        await signup(username, password);
-        errorEl.textContent = 'Signed up successfully! Please log in.';
-        errorEl.className = 'success';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-      } catch (err) {
-        errorEl.textContent = err.message || 'Sign-up failed';
-        errorEl.className = 'error';
-      }
-    });
-
-    document.getElementById('login-btn').addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const errorEl = document.getElementById('auth-error');
-      errorEl.textContent = '';
-      try {
-        currentUser = await login(username, password);
-        localStorage.setItem('currentUser', username);
-        document.getElementById('auth-section').style.display = 'none';
-        document.getElementById('forum-section').style.display = 'block';
-        document.getElementById('current-user').innerHTML = `${username}${username.toLowerCase() === 'milky' ? '<span class="verified-icon"></span><span class="owner-icon"></span>' : ''}`;
-        subscribeToForum();
-        errorEl.textContent = 'Logged in successfully';
-        errorEl.className = 'success';
-      } catch (err) {
-        errorEl.textContent = err.message || 'Login failed';
-        errorEl.className = 'error';
-      }
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      currentUser = null;
-      localStorage.removeItem('currentUser');
-      document.getElementById('auth-section').style.display = 'block';
-      document.getElementById('forum-section').style.display = 'none';
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      document.getElementById('auth-error').textContent = '';
-      document.getElementById('thread-list').innerHTML = '';
-    });
-
-    document.getElementById('create-thread-btn').addEventListener('click', async () => {
-      const title = document.getElementById('thread-title').value.trim();
-      const content = document.getElementById('thread-content').value.trim();
-      const imageInput = document.getElementById('thread-image');
-      let image = null;
-
-      if (imageInput.files[0]) {
-        if (imageInput.files[0].size > 2 * 1024 * 1024) {
-          document.getElementById('auth-error').textContent = 'Image size must be under 2MB';
-          document.getElementById('auth-error').className = 'error';
-          return;
-        }
-        image = await new Promise(resolve => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.readAsDataURL(imageInput.files[0]);
-        });
-      }
-
-      if (title && content) {
-        const thread = {
-          id: crypto.randomUUID(),
-          username: currentUser.username,
-          title,
-          content,
-          image,
-          timestamp: Date.now()
+    <script>
+        // JavaScript for functionality
+        const STORAGE_KEYS = {
+            USERS: 'forum_users',
+            SESSION: 'forum_session',
+            FORUMS: 'forum_forums',
+            CHAT: 'forum_chat',
+            ANNOUNCEMENT: 'forum_announcement',
+            BANNED: 'forum_banned' // Array of banned usernames
         };
-        await saveThread(thread);
-        document.getElementById('thread-title').value = '';
-        document.getElementById('thread-content').value = '';
-        imageInput.value = '';
-        document.getElementById('auth-error').textContent = 'Thread posted successfully';
-        document.getElementById('auth-error').className = 'success';
-      } else {
-        document.getElementById('auth-error').textContent = 'Title and content are required';
-        document.getElementById('auth-error').className = 'error';
-      }
-    });
 
-    // Initialize
-    initDB().then(async () => {
-      try {
-        await autoLogin();
-      } catch (err) {
-        console.log('No auto-login:', err);
-        document.getElementById('auth-section').style.display = 'block';
-        document.getElementById('forum-section').style.display = 'none';
-      }
-    }).catch(err => {
-      console.error('Initialization failed:', err);
-      document.getElementById('auth-error').textContent = 'Failed to initialize';
-      document.getElementById('auth-error').className = 'error';
-    });
-  </script>
+        // Admin username
+        const ADMIN_USER = 'Milky';
+
+        // Initialize data if not present
+        if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.FORUMS)) {
+            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.CHAT)) {
+            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT)) {
+            localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT, 'Welcome to Milky Forum! Enjoy discussing topics locally.');
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.BANNED)) {
+            localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify([]));
+        }
+
+        // Elements
+        const authSection = document.getElementById('auth-section');
+        const mainSection = document.getElementById('main-section');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const authMessage = document.getElementById('auth-message');
+        const currentUserSpan = document.getElementById('current-user');
+        const logoutBtn = document.getElementById('logout-btn');
+        const forumTitleInput = document.getElementById('forum-title');
+        const forumContentInput = document.getElementById('forum-content');
+        const createForumBtn = document.getElementById('create-forum-btn');
+        const forumsContainer = document.getElementById('forums-container');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const announcementText = document.getElementById('announcement-text');
+
+        // Check session
+        function checkSession() {
+            const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION));
+            if (session) {
+                showMainSection(session.username);
+            } else {
+                showAuthSection();
+            }
+        }
+
+        function showAuthSection() {
+            authSection.classList.remove('hidden');
+            mainSection.classList.add('hidden');
+        }
+
+        function showMainSection(username) {
+            authSection.classList.add('hidden');
+            mainSection.classList.remove('hidden');
+            currentUserSpan.innerHTML = `${username}${username === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}`;
+            loadForums();
+            loadChat();
+            announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
+            if (username === ADMIN_USER) {
+                // Add admin controls if needed, e.g., edit announcement
+                const editAnnBtn = document.createElement('button');
+                editAnnBtn.textContent = 'Edit Announcement';
+                editAnnBtn.onclick = () => {
+                    const newAnn = prompt('New Announcement:', announcementText.textContent);
+                    if (newAnn) {
+                        localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT, newAnn);
+                        announcementText.textContent = newAnn;
+                    }
+                };
+                document.querySelector('.announcement').appendChild(editAnnBtn);
+            }
+        }
+
+        // Auth functions
+        function signup() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            if (!username || !password) {
+                authMessage.textContent = 'Please enter username and password.';
+                return;
+            }
+            let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+            if (users.find(u => u.username === username)) {
+                authMessage.textContent = 'Username already exists.';
+                return;
+            }
+            users.push({ username, password });
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+            login(username, password);
+        }
+
+        function login(inputUsername = null, inputPassword = null) {
+            const username = inputUsername || usernameInput.value.trim();
+            const password = inputPassword || passwordInput.value.trim();
+            if (!username || !password) {
+                authMessage.textContent = 'Please enter username and password.';
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+            const user = users.find(u => u.username === username && u.password === password);
+            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
+            if (!user) {
+                authMessage.textContent = 'Invalid credentials.';
+                return;
+            } else if (banned.includes(username)) {
+                authMessage.textContent = 'You are banned.';
+                return;
+            }
+            localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify({ username }));
+            showMainSection(username);
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem(STORAGE_KEYS.SESSION);
+            showAuthSection();
+        }
+
+        // Forum functions
+        function createForum() {
+            const title = forumTitleInput.value.trim();
+            const content = forumContentInput.value.trim();
+            const username = getCurrentUser();
+            if (!title || !content) return;
+            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
+            const id = Date.now();
+            forums.push({ id, title, content, author: username, replies: [] });
+            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
+            forumTitleInput.value = '';
+            forumContentInput.value = '';
+            loadForums();
+        }
+
+        function loadForums() {
+            forumsContainer.innerHTML = '';
+            const forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
+            const currentUser = getCurrentUser();
+            const isAdmin = currentUser === ADMIN_USER;
+            forums.forEach(forum => {
+                const forumCard = document.createElement('div');
+                forumCard.classList.add('forum-card');
+                forumCard.innerHTML = `
+                    <h4>${forum.title}</h4>
+                    <p>${forum.content} - by ${forum.author}${forum.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}</p>
+                    <div class="replies">
+                        ${forum.replies.map(reply => `
+                            <div class="reply-card">
+                                <p>${reply.content} - by ${reply.author}${reply.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} (to ${reply.replyTo})</p>
+                                ${isAdmin ? `<button class="delete-btn" onclick="deleteReply(${forum.id}, ${reply.id})">Delete</button>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <textarea class="reply-input" placeholder="Reply..."></textarea>
+                    <button class="reply-btn">Reply</button>
+                    ${isAdmin ? `<button class="delete-btn" onclick="deleteForum(${forum.id})">Delete Forum</button>` : ''}
+                `;
+                const replyInput = forumCard.querySelector('.reply-input');
+                const replyBtn = forumCard.querySelector('.reply-btn');
+                replyBtn.onclick = () => addReply(forum, replyInput.value.trim());
+                forumsContainer.appendChild(forumCard);
+            });
+        }
+
+        function addReply(forum, content) {
+            if (!content) return;
+            const currentUser = getCurrentUser();
+            const replies = forum.replies;
+
+            // Check if user can reply
+            if (forum.author === currentUser && replies.length === 0) {
+                alert('You cannot reply to your own forum until someone else replies first.');
+                return;
+            }
+
+            // Determine replyTo: last reply's author if replying to own, else forum author or last
+            let replyTo = replies.length > 0 ? replies[replies.length - 1].author : forum.author;
+            if (forum.author === currentUser && replies.length > 0) {
+                // Reply to the last non-self reply? But spec says directed to that person, not themselves.
+                // Assuming replyTo is the last reply's author.
+            }
+
+            const id = Date.now();
+            replies.push({ id, content, author: currentUser, replyTo });
+            updateForum(forum.id, { replies });
+            loadForums();
+        }
+
+        function updateForum(id, updates) {
+            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
+            const forum = forums.find(f => f.id === id);
+            Object.assign(forum, updates);
+            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
+        }
+
+        function deleteForum(id) {
+            if (!confirm('Delete forum?')) return;
+            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS)).filter(f => f.id !== id);
+            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
+            loadForums();
+        }
+
+        function deleteReply(forumId, replyId) {
+            if (!confirm('Delete reply?')) return;
+            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
+            const forum = forums.find(f => f.id === forumId);
+            forum.replies = forum.replies.filter(r => r.id !== replyId);
+            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
+            loadForums();
+        }
+
+        // Chat functions
+        function sendChat() {
+            const content = chatInput.value.trim();
+            if (!content) return;
+            const username = getCurrentUser();
+            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT));
+            const id = Date.now();
+            chat.push({ id, content, author: username, timestamp: new Date().toISOString() });
+            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(chat));
+            chatInput.value = '';
+            loadChat();
+        }
+
+        function loadChat() {
+            chatMessages.innerHTML = '';
+            const chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT));
+            const currentUser = getCurrentUser();
+            const isAdmin = currentUser === ADMIN_USER;
+            chat.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('chat-message');
+                msgDiv.innerHTML = `
+                    <p>${msg.content} - by ${msg.author}${msg.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} at ${new Date(msg.timestamp).toLocaleTimeString()}</p>
+                    ${isAdmin ? `<button class="delete-btn" onclick="deleteChat(${msg.id})">Delete</button>` : ''}
+                `;
+                chatMessages.appendChild(msgDiv);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function deleteChat(id) {
+            if (!confirm('Delete message?')) return;
+            let chat = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT)).filter(m => m.id !== id);
+            localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(chat));
+            loadChat();
+        }
+
+        // Ban user (admin only)
+        function banUser(username) {
+            if (getCurrentUser() !== ADMIN_USER || username === ADMIN_USER) return;
+            if (confirm(`Ban ${username}?`)) {
+                let banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
+                if (!banned.includes(username)) {
+                    banned.push(username);
+                    localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
+                }
+            }
+        }
+
+        // To add ban buttons, e.g., in user lists or messages.
+        // For simplicity, add a button in main section for admin
+        if (getCurrentUser() === ADMIN_USER) {
+            const adminTools = document.createElement('div');
+            adminTools.innerHTML = '<h3>Admin Tools</h3><input id="ban-username" placeholder="Username to ban"><button id="ban-btn">Ban</button>';
+            mainSection.appendChild(adminTools);
+            document.getElementById('ban-btn').onclick = () => banUser(document.getElementById('ban-username').value.trim());
+        }
+
+        function getCurrentUser() {
+            const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION));
+            return session ? session.username : null;
+        }
+
+        // Real-time simulation using storage event
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEYS.FORUMS) {
+                loadForums();
+            } else if (event.key === STORAGE_KEYS.CHAT) {
+                loadChat();
+            } else if (event.key === STORAGE_KEYS.ANNOUNCEMENT) {
+                announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
+            }
+        });
+
+        // Event listeners
+        loginBtn.onclick = login;
+        signupBtn.onclick = signup;
+        logoutBtn.onclick = logout;
+        createForumBtn.onclick = createForum;
+        sendChatBtn.onclick = sendChat;
+
+        // Initial check
+        checkSession();
+
+        // Background particles (simple canvas particles)
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                vx: Math.random() * 1 - 0.5,
+                vy: Math.random() * 1 - 0.5
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx = -p.vx;
+                if (p.y < 0 || p.y > canvas.height) p.vy = -p.vy;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        drawParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // For ban buttons in messages, etc., but for now, global ban tool for admin.
+    </script>
 </body>
 </html>
