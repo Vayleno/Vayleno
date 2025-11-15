@@ -3,600 +3,523 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milky Forum</title>
+    <title>GenZ Forum</title>
     <style>
-        /* CSS for black-themed, high-quality, animated UI/UX */
-        :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --accent-color: #bb86fc;
-            --secondary-color: #03dac6;
-            --error-color: #cf6679;
-            --card-bg: #1e1e1e;
-            --border-radius: 8px;
-            --transition: all 0.3s ease;
+        /* Modern, high-quality design for Gen Z: vibrant blues, rounded, smooth animations */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: linear-gradient(270deg, #f0f9ff, #e0f2fe, #f0f9ff);
+            background-size: 300% 300%;
+            animation: subtleGradient 20s ease infinite;
+            color: #1f2937;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            align-items: flex-start;
+            padding: 20px;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Live interactive background: animated gradient with particles */
-        #background-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: linear-gradient(45deg, #000000, #1a1a1a, #000000);
-            background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
-        }
-
-        @keyframes gradientAnimation {
+        @keyframes subtleGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        .container {
-            max-width: 1200px;
-            width: 90%;
-            padding: 20px;
-            z-index: 1;
-        }
-
-        .auth-section, .main-section {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: var(--transition);
-        }
-
-        .auth-section:hover, .main-section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
-        }
-
-        input, button, textarea {
-            background: #2c2c2c;
-            border: 1px solid #3c3c3c;
-            color: var(--text-color);
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: var(--border-radius);
+        #auth, #main {
             width: 100%;
-            box-sizing: border-box;
-            transition: var(--transition);
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3b82f6;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, textarea {
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
         }
 
         input:focus, textarea:focus {
-            border-color: var(--accent-color);
+            border-color: #3b82f6;
             outline: none;
         }
 
         button {
-            background: var(--accent-color);
-            color: #000;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
             cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
         }
 
         button:hover {
-            background: var(--secondary-color);
+            transform: scale(1.05);
+            background: #2563eb;
         }
 
-        .forum-list, .announcement, .users-section, .private-chat {
+        .link {
+            text-align: center;
+            color: #3b82f6;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #main header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .forum-card, .reply-card, .chat-message, .user-card {
-            background: var(--card-bg);
+        #tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        #content {
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .post {
+            background: #f9fafb;
             padding: 15px;
-            margin: 10px 0;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: postAppear 0.5s ease;
+            position: relative;
         }
 
-        .forum-card:hover, .reply-card:hover, .user-card:hover {
-            transform: scale(1.02);
+        @keyframes postAppear {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .admin-badge {
-            background: var(--secondary-color);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            margin-left: 5px;
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
         }
 
-        .delete-btn, .ban-btn {
-            background: var(--error-color);
-            margin-left: 10px;
+        .post-actions {
+            display: flex;
+            gap: 10px;
         }
 
-        .hidden {
-            display: none;
+        .post-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border-radius: 5px;
         }
+
+        .post-actions button:hover {
+            background: #dbeafe;
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        /* Icons using Unicode emojis for embedded simplicity */
+        .icon-user::before { content: '👤 '; }
+        .icon-add::before { content: '➕ '; }
+        .icon-remove::before { content: '➖ '; }
+        .icon-edit::before { content: '✏️ '; }
+        .icon-delete::before { content: '🗑️ '; }
+        .icon-logout::before { content: '🚪 '; }
 
         /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
+        @media (max-width: 600px) {
+            #auth, #main {
+                padding: 20px;
+            }
+            #tabs {
+                flex-direction: column;
+            }
+            button {
+                font-size: 14px;
             }
         }
 
-        /* Modern icons (using simple text for now, can add Font Awesome later) */
-        .icon {
-            margin-right: 5px;
+        /* Touch optimizations: larger tap areas */
+        button, .link {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <canvas id="background-canvas"></canvas>
-    <div class="container">
-        <!-- Auth Section -->
-        <div id="auth-section" class="auth-section">
-            <h2>Login or Sign Up</h2>
-            <input id="username" type="text" placeholder="Username">
-            <input id="password" type="password" placeholder="Password">
-            <button id="login-btn">Login</button>
-            <button id="signup-btn">Sign Up</button>
-            <p id="auth-message"></p>
+    <div id="auth">
+        <div id="login-form">
+            <h1>Login to GenZ Forum</h1>
+            <form id="login">
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <div class="link" id="switch-to-signup">Don't have an account? Sign up</div>
         </div>
-
-        <!-- Main Section -->
-        <div id="main-section" class="main-section hidden">
-            <div class="header">
-                <h2>Welcome, <span id="current-user"></span></h2>
-                <button id="logout-btn">Logout</button>
-            </div>
-
-            <!-- Announcement Section -->
-            <div class="announcement">
-                <h3>Announcements</h3>
-                <p id="announcement-text">Welcome to Milky Forum! Enjoy discussing topics locally.</p>
-            </div>
-
-            <!-- Forum Creation -->
-            <div class="create-forum">
-                <h3>Create New Forum</h3>
-                <input id="forum-title" type="text" placeholder="Title">
-                <textarea id="forum-content" placeholder="Content"></textarea>
-                <button id="create-forum-btn">Create</button>
-            </div>
-
-            <!-- Forum List -->
-            <div class="forum-list">
-                <h3>Forums</h3>
-                <div id="forums-container"></div>
-            </div>
-
-            <!-- Users Section for Private Chats and Ban -->
-            <div class="users-section">
-                <h3>Users</h3>
-                <input id="user-search" type="text" placeholder="Search users...">
-                <div id="users-list"></div>
-            </div>
-
-            <!-- Private Chat Section -->
-            <div id="private-chat" class="private-chat hidden">
-                <h3>Private Chat with <span id="chat-with"></span></h3>
-                <div id="private-messages" style="height: 200px; overflow-y: auto; background: #2c2c2c; padding: 10px; border-radius: var(--border-radius);"></div>
-                <input id="private-input" type="text" placeholder="Type a message...">
-                <button id="send-private-btn">Send</button>
-                <button id="close-private-btn">Close</button>
-            </div>
+        <div id="signup-form" style="display: none;">
+            <h1>Sign Up</h1>
+            <form id="signup">
+                <input type="text" id="signup-username" placeholder="Username" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <button type="submit">Sign Up</button>
+            </form>
+            <div class="link" id="switch-to-login">Already have an account? Login</div>
         </div>
     </div>
 
+    <div id="main" style="display: none;">
+        <header>
+            <h2>Welcome, <span id="current-user"></span></h2>
+            <button id="logout" class="icon-logout">Logout</button>
+        </header>
+        <div id="tabs">
+            <button class="tab active" data-tab="all">All Posts</button>
+            <button class="tab" data-tab="friends">Friends Posts</button>
+            <button class="tab" data-tab="friends-list">Manage Friends</button>
+        </div>
+        <div id="content"></div>
+        <form id="post-form" style="display: none;">
+            <textarea id="post-content" placeholder="What's on your mind?" required></textarea>
+            <button type="submit">Post</button>
+        </form>
+    </div>
+
     <script>
-        // JavaScript for functionality
+        // Storage helpers
         const STORAGE_KEYS = {
-            USERS: 'forum_users',
-            SESSION: 'forum_session',
-            FORUMS: 'forum_forums',
-            PRIVATE_CHATS: 'forum_private_chats',
-            ANNOUNCEMENT: 'forum_announcement',
-            BANNED: 'forum_banned'
+            users: 'forum_users',
+            posts: 'forum_posts'
         };
 
-        const ADMIN_USER = 'Milky';
+        function getUsers() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+        }
 
-        // Initialize data if not present
-        if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([]));
+        function setUsers(users) {
+            localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
         }
-        if (!localStorage.getItem(STORAGE_KEYS.FORUMS)) {
-            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify([]));
+
+        function getPosts() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEYS.posts) || '[]');
         }
-        if (!localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS)) {
-            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify({}));
+
+        function setPosts(posts) {
+            localStorage.setItem(STORAGE_KEYS.posts, JSON.stringify(posts));
         }
-        if (!localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT)) {
-            localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT, 'Welcome to Milky Forum! Enjoy discussing topics locally.');
+
+        // Password hashing using browser crypto
+        async function hashPassword(password) {
+            const msgUint8 = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
-        if (!localStorage.getItem(STORAGE_KEYS.BANNED)) {
-            localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify([]));
-        }
+
+        // Current user
+        const currentUserKey = 'current_user';
+        let currentUser = sessionStorage.getItem(currentUserKey);
 
         // Elements
-        const authSection = document.getElementById('auth-section');
-        const mainSection = document.getElementById('main-section');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('login-btn');
-        const signupBtn = document.getElementById('signup-btn');
-        const authMessage = document.getElementById('auth-message');
+        const authDiv = document.getElementById('auth');
+        const mainDiv = document.getElementById('main');
         const currentUserSpan = document.getElementById('current-user');
-        const logoutBtn = document.getElementById('logout-btn');
-        const forumTitleInput = document.getElementById('forum-title');
-        const forumContentInput = document.getElementById('forum-content');
-        const createForumBtn = document.getElementById('create-forum-btn');
-        const forumsContainer = document.getElementById('forums-container');
-        const announcementText = document.getElementById('announcement-text');
-        const userSearch = document.getElementById('user-search');
-        const usersList = document.getElementById('users-list');
-        const privateChat = document.getElementById('private-chat');
-        const chatWith = document.getElementById('chat-with');
-        const privateMessages = document.getElementById('private-messages');
-        const privateInput = document.getElementById('private-input');
-        const sendPrivateBtn = document.getElementById('send-private-btn');
-        const closePrivateBtn = document.getElementById('close-private-btn');
+        const contentDiv = document.getElementById('content');
+        const postForm = document.getElementById('post-form');
+        const tabs = document.querySelectorAll('.tab');
 
-        let currentPrivateChatUser = null;
+        let activeTab = 'all';
 
-        // Check session
-        function checkSession() {
-            const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION));
-            if (session) {
-                const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
-                if (banned.includes(session.username)) {
-                    localStorage.removeItem(STORAGE_KEYS.SESSION);
-                    showAuthSection();
-                    authMessage.textContent = 'You are banned.';
-                } else {
-                    showMainSection(session.username);
-                }
-            } else {
-                showAuthSection();
-            }
-        }
-
-        function showAuthSection() {
-            authSection.classList.remove('hidden');
-            mainSection.classList.add('hidden');
-        }
-
-        function showMainSection(username) {
-            authSection.classList.add('hidden');
-            mainSection.classList.remove('hidden');
-            currentUserSpan.innerHTML = `${username}${username === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}`;
-            loadForums();
-            loadUsers();
-            announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
-            if (username === ADMIN_USER) {
-                const editAnnBtn = document.createElement('button');
-                editAnnBtn.textContent = 'Edit Announcement';
-                editAnnBtn.onclick = () => {
-                    const newAnn = prompt('New Announcement:', announcementText.textContent);
-                    if (newAnn) {
-                        localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT, newAnn);
-                        announcementText.textContent = newAnn;
-                    }
-                };
-                document.querySelector('.announcement').appendChild(editAnnBtn);
-            }
-        }
-
-        // Auth functions
-        function signup() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!username || !password) {
-                authMessage.textContent = 'Please enter username and password.';
-                return;
-            }
-            let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
-            if (users.find(u => u.username === username)) {
-                authMessage.textContent = 'Username already exists.';
-                return;
-            }
-            users.push({ username, password });
-            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-            login(username, password);
-        }
-
-        function login(inputUsername = null, inputPassword = null) {
-            const username = inputUsername || usernameInput.value.trim();
-            const password = inputPassword || passwordInput.value.trim();
-            if (!username || !password) {
-                authMessage.textContent = 'Please enter username and password.';
-                return;
-            }
-            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
-            const user = users.find(u => u.username === username && u.password === password);
-            if (!user) {
-                authMessage.textContent = 'Invalid credentials.';
-                return;
-            }
-            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
-            if (banned.includes(username)) {
-                authMessage.textContent = 'You are banned.';
-                return;
-            }
-            localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify({ username }));
-            showMainSection(username);
-        }
-
-        // Logout
-        function logout() {
-            localStorage.removeItem(STORAGE_KEYS.SESSION);
-            showAuthSection();
-        }
-
-        // Forum functions
-        function createForum() {
-            const title = forumTitleInput.value.trim();
-            const content = forumContentInput.value.trim();
-            const username = getCurrentUser();
-            if (!title || !content) return;
-            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
-            const id = Date.now();
-            forums.push({ id, title, content, author: username, replies: [] });
-            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
-            forumTitleInput.value = '';
-            forumContentInput.value = '';
-            loadForums();
-        }
-
-        function loadForums() {
-            forumsContainer.innerHTML = '';
-            const forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
-            const currentUser = getCurrentUser();
-            const isAdmin = currentUser === ADMIN_USER;
-            forums.forEach(forum => {
-                const forumCard = document.createElement('div');
-                forumCard.classList.add('forum-card');
-                let repliesHtml = forum.replies.map(reply => `
-                    <div class="reply-card">
-                        <p>${reply.content} - by ${reply.author}${reply.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''} (to ${reply.replyTo})</p>
-                        ${isAdmin ? `<button class="delete-btn" onclick="deleteReply(${forum.id}, ${reply.id})">Delete</button>` : ''}
-                    </div>
-                `).join('');
-                forumCard.innerHTML = `
-                    <h4>${forum.title}</h4>
-                    <p>${forum.content} - by ${forum.author}${forum.author === ADMIN_USER ? ' <span class="admin-badge">Developer</span>' : ''}</p>
-                    <div class="replies">${repliesHtml}</div>
-                    <textarea class="reply-input" placeholder="Reply..."></textarea>
-                    <button class="reply-btn">Reply</button>
-                    ${isAdmin ? `<button class="delete-btn" onclick="deleteForum(${forum.id})">Delete Forum</button>` : ''}
-                `;
-                const replyInput = forumCard.querySelector('.reply-input');
-                const replyBtn = forumCard.querySelector('.reply-btn');
-                replyBtn.onclick = () => addReply(forum.id, replyInput.value.trim());
-                forumsContainer.appendChild(forumCard);
+        // Switch tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeTab = tab.dataset.tab;
+                renderContent();
             });
-        }
-
-        function addReply(forumId, content) {
-            if (!content) return;
-            const currentUser = getCurrentUser();
-            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
-            const forum = forums.find(f => f.id === forumId);
-            const replies = forum.replies;
-            if (forum.author === currentUser && replies.length === 0) {
-                alert('You cannot reply to your own forum until someone else replies first.');
-                return;
-            }
-            let replyTo = replies.length > 0 ? replies[replies.length - 1].author : forum.author;
-            const id = Date.now();
-            replies.push({ id, content, author: currentUser, replyTo });
-            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
-            loadForums();
-        }
-
-        function deleteForum(id) {
-            if (!confirm('Delete forum?')) return;
-            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS)).filter(f => f.id !== id);
-            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
-            loadForums();
-        }
-
-        function deleteReply(forumId, replyId) {
-            if (!confirm('Delete reply?')) return;
-            let forums = JSON.parse(localStorage.getItem(STORAGE_KEYS.FORUMS));
-            const forum = forums.find(f => f.id === forumId);
-            forum.replies = forum.replies.filter(r => r.id !== replyId);
-            localStorage.setItem(STORAGE_KEYS.FORUMS, JSON.stringify(forums));
-            loadForums();
-        }
-
-        // Users and Ban
-        function loadUsers(query = '') {
-            usersList.innerHTML = '';
-            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
-            const banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
-            const currentUser = getCurrentUser();
-            const isAdmin = currentUser === ADMIN_USER;
-            const filteredUsers = users.filter(u => u.username !== currentUser && u.username.toLowerCase().includes(query.toLowerCase()));
-            filteredUsers.forEach(user => {
-                const userCard = document.createElement('div');
-                userCard.classList.add('user-card');
-                userCard.innerHTML = `
-                    <p>${user.username}${banned.includes(user.username) ? ' (Banned)' : ''}</p>
-                    <button class="chat-btn">Chat</button>
-                    ${isAdmin && !banned.includes(user.username) ? `<button class="ban-btn" onclick="banUser('${user.username}')">Ban</button>` : ''}
-                    ${isAdmin && banned.includes(user.username) ? `<button class="ban-btn" onclick="unbanUser('${user.username}')">Unban</button>` : ''}
-                `;
-                const chatBtn = userCard.querySelector('.chat-btn');
-                chatBtn.onclick = () => openPrivateChat(user.username);
-                usersList.appendChild(userCard);
-            });
-        }
-
-        function banUser(username) {
-            if (getCurrentUser() !== ADMIN_USER || username === ADMIN_USER) return;
-            if (confirm(`Ban ${username}?`)) {
-                let banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED));
-                if (!banned.includes(username)) {
-                    banned.push(username);
-                    localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
-                    loadUsers(userSearch.value.trim());
-                }
-            }
-        }
-
-        function unbanUser(username) {
-            if (getCurrentUser() !== ADMIN_USER) return;
-            if (confirm(`Unban ${username}?`)) {
-                let banned = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANNED)).filter(u => u !== username);
-                localStorage.setItem(STORAGE_KEYS.BANNED, JSON.stringify(banned));
-                loadUsers(userSearch.value.trim());
-            }
-        }
-
-        // Private Chat functions
-        function openPrivateChat(targetUser) {
-            if (currentPrivateChatUser === targetUser) return;
-            currentPrivateChatUser = targetUser;
-            chatWith.textContent = targetUser;
-            privateChat.classList.remove('hidden');
-            loadPrivateMessages();
-        }
-
-        function closePrivateChat() {
-            privateChat.classList.add('hidden');
-            currentPrivateChatUser = null;
-        }
-
-        function getPrivateChatKey(user1, user2) {
-            return [user1, user2].sort().join('_');
-        }
-
-        function sendPrivateMessage() {
-            const content = privateInput.value.trim();
-            if (!content || !currentPrivateChatUser) return;
-            const sender = getCurrentUser();
-            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
-            const key = getPrivateChatKey(sender, currentPrivateChatUser);
-            if (!privateChats[key]) privateChats[key] = [];
-            const id = Date.now();
-            privateChats[key].push({ id, content, sender, timestamp: new Date().toISOString() });
-            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify(privateChats));
-            privateInput.value = '';
-            loadPrivateMessages();
-        }
-
-        function loadPrivateMessages() {
-            if (!currentPrivateChatUser) return;
-            privateMessages.innerHTML = '';
-            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
-            const key = getPrivateChatKey(getCurrentUser(), currentPrivateChatUser);
-            const messages = privateChats[key] || [];
-            const currentUser = getCurrentUser();
-            const isAdmin = currentUser === ADMIN_USER;
-            messages.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.classList.add('chat-message');
-                msgDiv.innerHTML = `
-                    <p>${msg.content} - by ${msg.sender} at ${new Date(msg.timestamp).toLocaleTimeString()}</p>
-                    ${isAdmin || msg.sender === currentUser ? `<button class="delete-btn" onclick="deletePrivateMessage('${key}', ${msg.id})">Delete</button>` : ''}
-                `;
-                privateMessages.appendChild(msgDiv);
-            });
-            privateMessages.scrollTop = privateMessages.scrollHeight;
-        }
-
-        function deletePrivateMessage(key, id) {
-            if (!confirm('Delete message?')) return;
-            let privateChats = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRIVATE_CHATS));
-            privateChats[key] = privateChats[key].filter(m => m.id !== id);
-            localStorage.setItem(STORAGE_KEYS.PRIVATE_CHATS, JSON.stringify(privateChats));
-            loadPrivateMessages();
-        }
-
-        function getCurrentUser() {
-            const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION));
-            return session ? session.username : null;
-        }
-
-        // Real-time simulation using storage event
-        window.addEventListener('storage', (event) => {
-            if (event.key === STORAGE_KEYS.FORUMS) {
-                loadForums();
-            } else if (event.key === STORAGE_KEYS.PRIVATE_CHATS) {
-                loadPrivateMessages();
-            } else if (event.key === STORAGE_KEYS.ANNOUNCEMENT) {
-                announcementText.textContent = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT);
-            } else if (event.key === STORAGE_KEYS.BANNED || event.key === STORAGE_KEYS.USERS) {
-                loadUsers(userSearch.value.trim());
-            }
         });
+
+        // Render functions
+        function renderPosts(filteredPosts) {
+            contentDiv.innerHTML = '';
+            filteredPosts.reverse().forEach(post => {  // Newest first
+                const postDiv = document.createElement('div');
+                postDiv.classList.add('post');
+                postDiv.innerHTML = `
+                    <div class="post-header">
+                        <span class="icon-user">${post.username} - ${new Date(post.timestamp).toLocaleString()}</span>
+                        ${post.edited ? '<span>(Edited)</span>' : ''}
+                    </div>
+                    <p>${post.content}</p>
+                `;
+                if (post.username === currentUser) {
+                    const actions = document.createElement('div');
+                    actions.classList.add('post-actions');
+                    const editBtn = document.createElement('button');
+                    editBtn.classList.add('icon-edit');
+                    editBtn.textContent = 'Edit';
+                    editBtn.onclick = () => editPost(post.id);
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('icon-delete');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.onclick = () => deletePost(post.id);
+                    actions.append(editBtn, deleteBtn);
+                    postDiv.append(actions);
+                }
+                contentDiv.append(postDiv);
+            });
+            contentDiv.scrollTop = contentDiv.scrollHeight;  // Scroll to bottom for new posts
+        }
+
+        function renderFriendsList() {
+            contentDiv.innerHTML = '';
+            const users = getUsers();
+            const current = users.find(u => u.username === currentUser);
+            const otherUsers = users.filter(u => u.username !== currentUser);
+            otherUsers.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.classList.add('user-item');
+                userItem.innerHTML = `<span class="icon-user">${user.username}</span>`;
+                const btn = document.createElement('button');
+                if (current.friends.includes(user.username)) {
+                    btn.classList.add('icon-remove');
+                    btn.textContent = 'Remove Friend';
+                    btn.onclick = () => removeFriend(user.username);
+                } else {
+                    btn.classList.add('icon-add');
+                    btn.textContent = 'Add Friend';
+                    btn.onclick = () => addFriend(user.username);
+                }
+                userItem.append(btn);
+                contentDiv.append(userItem);
+            });
+        }
+
+        function renderContent() {
+            const posts = getPosts();
+            if (activeTab === 'all') {
+                postForm.style.display = 'flex';
+                renderPosts(posts);
+            } else if (activeTab === 'friends') {
+                postForm.style.display = 'flex';
+                const users = getUsers();
+                const current = users.find(u => u.username === currentUser);
+                const friendsPosts = posts.filter(p => current.friends.includes(p.username) || p.username === currentUser);
+                renderPosts(friendsPosts);
+            } else if (activeTab === 'friends-list') {
+                postForm.style.display = 'none';
+                renderFriendsList();
+            }
+        }
+
+        // Actions
+        async function signup(event) {
+            event.preventDefault();
+            const username = document.getElementById('signup-username').value.trim();
+            const password = document.getElementById('signup-password').value;
+            if (!username || !password) return alert('Fill in all fields');
+            const users = getUsers();
+            if (users.find(u => u.username === username)) return alert('Username taken');
+            const hash = await hashPassword(password);
+            users.push({ username, passwordHash: hash, friends: [] });
+            setUsers(users);
+            alert('Signed up! Now login.');
+            switchToLogin();
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const users = getUsers();
+            const user = users.find(u => u.username === username);
+            if (!user) return alert('User not found');
+            const hash = await hashPassword(password);
+            if (hash !== user.passwordHash) return alert('Wrong password');
+            sessionStorage.setItem(currentUserKey, username);
+            currentUser = username;
+            showMain();
+        }
+
+        function logout() {
+            sessionStorage.removeItem(currentUserKey);
+            currentUser = null;
+            showAuth();
+        }
+
+        function postMessage(event) {
+            event.preventDefault();
+            const content = document.getElementById('post-content').value.trim();
+            if (!content) return;
+            const posts = getPosts();
+            posts.push({
+                id: Date.now(),
+                username: currentUser,
+                content,
+                timestamp: new Date().toISOString(),
+                edited: false
+            });
+            setPosts(posts);
+            document.getElementById('post-content').value = '';
+            renderContent();
+        }
+
+        function editPost(id) {
+            const posts = getPosts();
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+            const newContent = prompt('Edit post:', post.content);
+            if (newContent !== null && newContent.trim()) {
+                post.content = newContent.trim();
+                post.edited = true;
+                setPosts(posts);
+                renderContent();
+            }
+        }
+
+        function deletePost(id) {
+            if (!confirm('Delete post?')) return;
+            let posts = getPosts();
+            posts = posts.filter(p => p.id !== id);
+            setPosts(posts);
+            renderContent();
+        }
+
+        function addFriend(friendUsername) {
+            const users = getUsers();
+            const current = users.find(u => u.username === currentUser);
+            if (!current.friends.includes(friendUsername)) {
+                current.friends.push(friendUsername);
+                setUsers(users);
+                renderContent();
+            }
+        }
+
+        function removeFriend(friendUsername) {
+            const users = getUsers();
+            const current = users.find(u => u.username === currentUser);
+            current.friends = current.friends.filter(f => f !== friendUsername);
+            setUsers(users);
+            renderContent();
+        }
+
+        // UI switches
+        function showMain() {
+            authDiv.style.display = 'none';
+            mainDiv.style.display = 'block';
+            currentUserSpan.textContent = currentUser;
+            renderContent();
+        }
+
+        function showAuth() {
+            mainDiv.style.display = 'none';
+            authDiv.style.display = 'block';
+        }
+
+        function switchToSignup() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+        }
+
+        function switchToLogin() {
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
 
         // Event listeners
-        loginBtn.onclick = login;
-        signupBtn.onclick = signup;
-        logoutBtn.onclick = logout;
-        createForumBtn.onclick = createForum;
-        userSearch.oninput = () => loadUsers(userSearch.value.trim());
-        sendPrivateBtn.onclick = sendPrivateMessage;
-        closePrivateBtn.onclick = closePrivateChat;
+        document.getElementById('signup').addEventListener('submit', signup);
+        document.getElementById('login').addEventListener('submit', login);
+        document.getElementById('logout').addEventListener('click', logout);
+        document.getElementById('post-form').addEventListener('submit', postMessage);
+        document.getElementById('switch-to-signup').addEventListener('click', switchToSignup);
+        document.getElementById('switch-to-login').addEventListener('click', switchToLogin);
 
-        // Initial check
-        checkSession();
-
-        // Background particles
-        const canvas = document.getElementById('background-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let particles = [];
-        for (let i = 0; i < 100; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 2 + 1,
-                vx: Math.random() * 1 - 0.5,
-                vy: Math.random() * 1 - 0.5
-            });
-        }
-
-        function drawParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            particles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0 || p.x > canvas.width) p.vx = -p.vx;
-                if (p.y < 0 || p.y > canvas.height) p.vy = -p.vy;
-            });
-            requestAnimationFrame(drawParticles);
-        }
-
-        drawParticles();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        // Real-time simulation via storage event (for multi-tab demo)
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEYS.posts || event.key === STORAGE_KEYS.users) {
+                renderContent();
+                // Visual cue: brief highlight on content
+                contentDiv.style.background = '#dbeafe';
+                setTimeout(() => { contentDiv.style.background = ''; }, 500);
+            }
         });
+
+        // Initial load
+        if (currentUser) {
+            showMain();
+        } else {
+            showAuth();
+        }
     </script>
 </body>
 </html>
