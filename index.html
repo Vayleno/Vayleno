@@ -3,487 +3,749 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenZ Forum</title>
+    <title>Assemble</title>
     <style>
-        /* Modern, high-quality design for Gen Z: vibrant blues, rounded, smooth animations */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        /* Modern, clean, black theme for Gen Z */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            background: linear-gradient(270deg, #f0f9ff, #e0f2fe, #f0f9ff);
-            background-size: 300% 300%;
-            animation: subtleGradient 20s ease infinite;
-            color: #1f2937;
+            background: #000;
+            color: #e5e7eb;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             padding: 20px;
             overflow-x: hidden;
+            position: relative;
         }
 
-        @keyframes subtleGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Live animated background - subtle floating particles */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
         }
 
         #auth, #main {
             width: 100%;
             max-width: 800px;
-            background: white;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(12px);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.5s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeIn 0.6s ease;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1, h2 {
+        h1 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #3b82f6;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #e5e7eb;
+            font-size: 1.5rem;
         }
 
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 16px;
         }
 
         input, textarea {
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
+            padding: 14px;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #9ca3af;
         }
 
         input:focus, textarea:focus {
-            border-color: #3b82f6;
             outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
         }
 
         button {
-            padding: 12px;
-            background: #3b82f6;
+            padding: 14px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
-            transform: scale(1.05);
-            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
         }
 
         .link {
             text-align: center;
-            color: #3b82f6;
+            color: #60a5fa;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 16px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .link:hover {
+            color: #93c5fd;
         }
 
         #main header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         #tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .tab {
             flex: 1;
-            background: #eff6ff;
-            color: #3b82f6;
+            padding: 12px;
+            background: transparent;
+            color: #9ca3af;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
         .tab.active {
-            background: #3b82f6;
-            color: white;
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+            font-weight: 600;
         }
 
         #content {
-            min-height: 300px;
-            max-height: 500px;
+            min-height: 320px;
+            max-height: 520px;
             overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            background: rgba(20, 20, 20, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .post {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            background: rgba(30, 30, 30, 0.7);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
             animation: postAppear 0.5s ease;
-            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .post:hover {
+            background: rgba(35, 35, 35, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes postAppear {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .post-header {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 10px;
+            align-items: center;
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .post-username {
+            color: #60a5fa;
+            font-weight: 600;
         }
 
         .post-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .post-actions button {
-            padding: 5px 10px;
+            padding: 6px 12px;
             font-size: 12px;
-            background: #eff6ff;
-            color: #3b82f6;
-            border-radius: 5px;
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.3);
         }
 
         .post-actions button:hover {
-            background: #dbeafe;
+            background: rgba(96, 165, 250, 0.25);
+            transform: translateY(-1px);
         }
 
         .user-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .user-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 10px;
+            background: rgba(30, 30, 30, 0.7);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Icons using Unicode emojis for embedded simplicity */
-        .icon-user::before { content: '👤 '; }
-        .icon-add::before { content: '➕ '; }
-        .icon-remove::before { content: '➖ '; }
-        .icon-edit::before { content: '✏️ '; }
-        .icon-delete::before { content: '🗑️ '; }
-        .icon-logout::before { content: '🚪 '; }
+        .user-item:hover {
+            background: rgba(35, 35, 35, 0.8);
+        }
 
-        /* Responsive design */
+        .friend-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Search bar */
+        .search-container {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        #user-search {
+            width: 100%;
+            padding: 12px 40px 12px 14px;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        /* Add Friend Button */
+        .add-friend-btn {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .add-friend-btn:hover {
+            background: rgba(34, 197, 94, 0.25);
+        }
+
+        .remove-friend-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .remove-friend-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* Icons using embedded SVG */
+        .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            vertical-align: -2px;
+        }
+
+        /* Responsive */
         @media (max-width: 600px) {
             #auth, #main {
-                padding: 20px;
+                padding: 24px;
+                border-radius: 16px;
             }
-            #tabs {
-                flex-direction: column;
-            }
-            button {
-                font-size: 14px;
-            }
+            h1 { font-size: 2rem; }
+            #tabs { flex-direction: column; }
+            .tab { border-bottom: none; border-left: 3px solid transparent; }
+            .tab.active { border-left-color: #60a5fa; background: rgba(96, 165, 250, 0.1); }
         }
 
-        /* Touch optimizations: larger tap areas */
-        button, .link {
+        /* Touch targets */
+        button, .link, .tab {
             min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
+        /* New post indicator */
+        .new-post-notif {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            animation: pulse 1s infinite;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Online indicator */
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #22c55e;
+            margin-top: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: onlinePulse 2s infinite;
+        }
+
+        @keyframes onlinePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
+    <div class="bg-animation" id="bg-animation"></div>
+
     <div id="auth">
         <div id="login-form">
-            <h1>Login to GenZ Forum</h1>
+            <h1>Assemble</h1>
             <form id="login">
                 <input type="text" id="login-username" placeholder="Username" required>
                 <input type="password" id="login-password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
-            <div class="link" id="switch-to-signup">Don't have an account? Sign up</div>
+            <div class="link" id="switch-to-signup">Create an account</div>
         </div>
         <div id="signup-form" style="display: none;">
-            <h1>Sign Up</h1>
+            <h1>Assemble</h1>
             <form id="signup">
-                <input type="text" id="signup-username" placeholder="Username" required>
-                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="text" id="signup-username" placeholder="Choose username" required>
+                <input type="password" id="signup-password" placeholder="Create password" required>
                 <button type="submit">Sign Up</button>
             </form>
-            <div class="link" id="switch-to-login">Already have an account? Login</div>
+            <div class="link" id="switch-to-login">Already have an account?</div>
         </div>
     </div>
 
     <div id="main" style="display: none;">
         <header>
-            <h2>Welcome, <span id="current-user"></span></h2>
-            <button id="logout" class="icon-logout">Logout</button>
+            <h2>Hey, <span id="current-user"></span>!</h2>
+            <button id="logout">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M16 17l5-5-5-5v3H9v4h7v3z"/><path d="M20 19H9v-2H4v-2h5v-2H4V9h5V7H4V3h16v16z"/></svg>
+                Logout
+            </button>
         </header>
         <div id="tabs">
             <button class="tab active" data-tab="all">All Posts</button>
-            <button class="tab" data-tab="friends">Friends Posts</button>
-            <button class="tab" data-tab="friends-list">Manage Friends</button>
+            <button class="tab" data-tab="friends">Friends</button>
+            <button class="tab" data-tab="friends-list">Add Friends</button>
         </div>
         <div id="content"></div>
         <form id="post-form" style="display: none;">
-            <textarea id="post-content" placeholder="What's on your mind?" required></textarea>
+            <textarea id="post-content" placeholder="What's happening?" rows="3" required></textarea>
             <button type="submit">Post</button>
         </form>
     </div>
 
     <script>
-        // Storage helpers
-        const STORAGE_KEYS = {
-            users: 'forum_users',
-            posts: 'forum_posts'
+        // === Storage & Crypto ===
+        const STORAGE = {
+            users: 'assemble_users_v2',
+            posts: 'assemble_posts_v2',
+            online: 'assemble_online'
         };
 
-        function getUsers() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+        function get(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+        function set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+        async function hash(pw) {
+            const enc = new TextEncoder();
+            const data = enc.encode(pw);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function setUsers(users) {
-            localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
-        }
-
-        function getPosts() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEYS.posts) || '[]');
-        }
-
-        function setPosts(posts) {
-            localStorage.setItem(STORAGE_KEYS.posts, JSON.stringify(posts));
-        }
-
-        // Password hashing using browser crypto
-        async function hashPassword(password) {
-            const msgUint8 = new TextEncoder().encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Current user
-        const currentUserKey = 'current_user';
+        // === State ===
+        const currentUserKey = 'assemble_current_v2';
         let currentUser = sessionStorage.getItem(currentUserKey);
+        let lastPostCount = get(STORAGE.posts).length;
+        let lastUserCount = get(STORAGE.users).length;
+        let onlineInterval;
 
-        // Elements
-        const authDiv = document.getElementById('auth');
-        const mainDiv = document.getElementById('main');
-        const currentUserSpan = document.getElementById('current-user');
-        const contentDiv = document.getElementById('content');
+        // === DOM ===
+        const auth = document.getElementById('auth');
+        const main = document.getElementById('main');
+        const userSpan = document.getElementById('current-user');
+        const content = document.getElementById('content');
         const postForm = document.getElementById('post-form');
         const tabs = document.querySelectorAll('.tab');
 
         let activeTab = 'all';
 
-        // Switch tabs
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                activeTab = tab.dataset.tab;
-                renderContent();
-            });
-        });
+        // === Background Particles ===
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 6 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            document.getElementById('bg-animation').appendChild(p);
+            setTimeout(() => p.remove(), 20000);
+        }
 
-        // Render functions
-        function renderPosts(filteredPosts) {
-            contentDiv.innerHTML = '';
-            filteredPosts.reverse().forEach(post => {  // Newest first
-                const postDiv = document.createElement('div');
-                postDiv.classList.add('post');
-                postDiv.innerHTML = `
+        setInterval(createParticle, 300);
+        for (let i = 0; i < 15; i++) setTimeout(createParticle, i * 200);
+
+        // === Online Status ===
+        function goOnline() {
+            if (!currentUser) return;
+            const online = get(STORAGE.online);
+            if (!online.includes(currentUser)) {
+                online.push(currentUser);
+                set(STORAGE.online, online);
+            }
+        }
+
+        function goOffline() {
+            if (!currentUser) return;
+            let online = get(STORAGE.online);
+            online = online.filter(u => u !== currentUser);
+            set(STORAGE.online, online);
+        }
+
+        // === Tab Switching ===
+        tabs.forEach(t => t.addEventListener('click', () => {
+            tabs.forEach(tab => tab.classList.remove('active'));
+            t.classList.add('active');
+            activeTab = t.dataset.tab;
+            render();
+        }));
+
+        // === Render ===
+        function renderPosts(posts) {
+            content.innerHTML = '';
+            posts.reverse().forEach(post => {
+                const div = document.createElement('div');
+                div.className = 'post';
+                const time = new Date(post.timestamp).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                });
+                const isOnline = get(STORAGE.online).includes(post.username);
+                div.innerHTML = `
                     <div class="post-header">
-                        <span class="icon-user">${post.username} - ${new Date(post.timestamp).toLocaleString()}</span>
-                        ${post.edited ? '<span>(Edited)</span>' : ''}
+                        <span><span class="post-username">${post.username}</span> · ${time}</span>
+                        ${post.edited ? '<span style="color:#fbbf24;">(edited)</span>' : ''}
                     </div>
-                    <p>${post.content}</p>
+                    <p style="margin:8px 0; line-height:1.5;">${post.content.replace(/\n/g, '<br>')}</p>
+                    ${isOnline ? '<div class="online-status"><div class="online-dot"></div>Online now</div>' : ''}
                 `;
                 if (post.username === currentUser) {
                     const actions = document.createElement('div');
-                    actions.classList.add('post-actions');
-                    const editBtn = document.createElement('button');
-                    editBtn.classList.add('icon-edit');
-                    editBtn.textContent = 'Edit';
-                    editBtn.onclick = () => editPost(post.id);
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.classList.add('icon-delete');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = () => deletePost(post.id);
-                    actions.append(editBtn, deleteBtn);
-                    postDiv.append(actions);
+                    actions.className = 'post-actions';
+                    ['Edit', 'Delete'].forEach((txt, i) => {
+                        const btn = document.createElement('button');
+                        btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="${i===0?'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z':'M6 19h12v2H6z'}"/></svg>${txt}`;
+                        btn.onclick = () => i === 0 ? editPost(post.id) : deletePost(post.id);
+                        actions.appendChild(btn);
+                    });
+                    div.appendChild(actions);
                 }
-                contentDiv.append(postDiv);
+                content.appendChild(div);
             });
-            contentDiv.scrollTop = contentDiv.scrollHeight;  // Scroll to bottom for new posts
+            content.scrollTop = content.scrollHeight;
         }
 
         function renderFriendsList() {
-            contentDiv.innerHTML = '';
-            const users = getUsers();
-            const current = users.find(u => u.username === currentUser);
-            const otherUsers = users.filter(u => u.username !== currentUser);
-            otherUsers.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.classList.add('user-item');
-                userItem.innerHTML = `<span class="icon-user">${user.username}</span>`;
-                const btn = document.createElement('button');
-                if (current.friends.includes(user.username)) {
-                    btn.classList.add('icon-remove');
-                    btn.textContent = 'Remove Friend';
-                    btn.onclick = () => removeFriend(user.username);
-                } else {
-                    btn.classList.add('icon-add');
-                    btn.textContent = 'Add Friend';
-                    btn.onclick = () => addFriend(user.username);
+            content.innerHTML = `
+                <div class="search-container">
+                    <input type="text" id="user-search" placeholder="Search users..." autocomplete="off">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                </div>
+                <div id="user-results"></div>
+            `;
+
+            const searchInput = document.getElementById('user-search');
+            const resultsDiv = document.getElementById('user-results');
+
+            function filterUsers() {
+                const query = searchInput.value.toLowerCase().trim();
+                const users = get(STORAGE.users);
+                const me = users.find(u => u.username === currentUser);
+                const filtered = users.filter(u => 
+                    u.username !== currentUser && 
+                    u.username.toLowerCase().includes(query)
+                );
+
+                resultsDiv.innerHTML = '';
+                if (filtered.length === 0) {
+                    resultsDiv.innerHTML = '<p style="text-align:center; color:#9ca3af; margin:20px 0;">No users found</p>';
+                    return;
                 }
-                userItem.append(btn);
-                contentDiv.append(userItem);
-            });
+
+                filtered.forEach(u => {
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    const isFriend = me.friends.includes(u.username);
+                    const isOnline = get(STORAGE.online).includes(u.username);
+                    item.innerHTML = `
+                        <div>
+                            <strong>${u.username}</strong>
+                            ${isFriend ? '<span class="friend-badge">Friend</span>' : ''}
+                            ${isOnline ? '<div class="online-status"><div class="online-dot"></div>Online</div>' : ''}
+                        </div>
+                    `;
+                    const btn = document.createElement('button');
+                    btn.className = isFriend ? 'remove-friend-btn' : 'add-friend-btn';
+                    btn.innerHTML = isFriend ? 'Remove' : 'Add Friend';
+                    btn.onclick = () => isFriend ? removeFriend(u.username) : addFriend(u.username);
+                    item.appendChild(btn);
+                    resultsDiv.appendChild(item);
+                });
+            }
+
+            searchInput.addEventListener('input', filterUsers);
+            filterUsers(); // Initial render
         }
 
-        function renderContent() {
-            const posts = getPosts();
+        function render() {
+            const posts = get(STORAGE.posts);
             if (activeTab === 'all') {
                 postForm.style.display = 'flex';
                 renderPosts(posts);
             } else if (activeTab === 'friends') {
                 postForm.style.display = 'flex';
-                const users = getUsers();
-                const current = users.find(u => u.username === currentUser);
-                const friendsPosts = posts.filter(p => current.friends.includes(p.username) || p.username === currentUser);
-                renderPosts(friendsPosts);
+                const me = get(STORAGE.users).find(u => u.username === currentUser);
+                const friendPosts = posts.filter(p => me.friends.includes(p.username) || p.username === currentUser);
+                renderPosts(friendPosts);
             } else if (activeTab === 'friends-list') {
                 postForm.style.display = 'none';
                 renderFriendsList();
             }
         }
 
-        // Actions
-        async function signup(event) {
-            event.preventDefault();
-            const username = document.getElementById('signup-username').value.trim();
-            const password = document.getElementById('signup-password').value;
-            if (!username || !password) return alert('Fill in all fields');
-            const users = getUsers();
-            if (users.find(u => u.username === username)) return alert('Username taken');
-            const hash = await hashPassword(password);
-            users.push({ username, passwordHash: hash, friends: [] });
-            setUsers(users);
-            alert('Signed up! Now login.');
+        // === Actions ===
+        async function signup(e) {
+            e.preventDefault();
+            const un = document.getElementById('signup-username').value.trim();
+            const pw = document.getElementById('signup-password').value;
+            if (!un || !pw) return alert('Fill all fields');
+            const users = get(STORAGE.users);
+            if (users.some(u => u.username === un)) return alert('Username taken');
+            const h = await hash(pw);
+            users.push({ username: un, passwordHash: h, friends: [] });
+            set(STORAGE.users, users);
+            alert('Account created! Log in now.');
             switchToLogin();
         }
 
-        async function login(event) {
-            event.preventDefault();
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
-            const users = getUsers();
-            const user = users.find(u => u.username === username);
+        async function login(e) {
+            e.preventDefault();
+            const un = document.getElementById('login-username').value.trim();
+            const pw = document.getElementById('login-password').value;
+            const users = get(STORAGE.users);
+            const user = users.find(u => u.username === un);
             if (!user) return alert('User not found');
-            const hash = await hashPassword(password);
-            if (hash !== user.passwordHash) return alert('Wrong password');
-            sessionStorage.setItem(currentUserKey, username);
-            currentUser = username;
+            const h = await hash(pw);
+            if (h !== user.passwordHash) return alert('Wrong password');
+            sessionStorage.setItem(currentUserKey, un);
+            currentUser = un;
             showMain();
         }
 
         function logout() {
+            goOffline();
             sessionStorage.removeItem(currentUserKey);
             currentUser = null;
+            clearInterval(onlineInterval);
             showAuth();
         }
 
-        function postMessage(event) {
-            event.preventDefault();
-            const content = document.getElementById('post-content').value.trim();
-            if (!content) return;
-            const posts = getPosts();
+        function postMessage(e) {
+            e.preventDefault();
+            const txt = document.getElementById('post-content').value.trim();
+            if (!txt) return;
+            const posts = get(STORAGE.posts);
             posts.push({
-                id: Date.now(),
+                id: Date.now() + Math.random(),
                 username: currentUser,
-                content,
+                content: txt,
                 timestamp: new Date().toISOString(),
                 edited: false
             });
-            setPosts(posts);
+            set(STORAGE.posts, posts);
             document.getElementById('post-content').value = '';
-            renderContent();
+            render();
+            showNewPostNotif();
         }
 
         function editPost(id) {
-            const posts = getPosts();
-            const post = posts.find(p => p.id === id);
-            if (!post) return;
-            const newContent = prompt('Edit post:', post.content);
-            if (newContent !== null && newContent.trim()) {
-                post.content = newContent.trim();
-                post.edited = true;
-                setPosts(posts);
-                renderContent();
+            const posts = get(STORAGE.posts);
+            const p = posts.find(x => x.id === id);
+            const newTxt = prompt('Edit your post:', p.content);
+            if (newTxt && newTxt.trim()) {
+                p.content = newTxt.trim();
+                p.edited = true;
+                set(STORAGE.posts, posts);
+                render();
             }
         }
 
         function deletePost(id) {
-            if (!confirm('Delete post?')) return;
-            let posts = getPosts();
+            if (!confirm('Delete this post?')) return;
+            let posts = get(STORAGE.posts);
             posts = posts.filter(p => p.id !== id);
-            setPosts(posts);
-            renderContent();
+            set(STORAGE.posts, posts);
+            render();
         }
 
-        function addFriend(friendUsername) {
-            const users = getUsers();
-            const current = users.find(u => u.username === currentUser);
-            if (!current.friends.includes(friendUsername)) {
-                current.friends.push(friendUsername);
-                setUsers(users);
-                renderContent();
+        function addFriend(f) {
+            const users = get(STORAGE.users);
+            const me = users.find(u => u.username === currentUser);
+            if (!me.friends.includes(f)) {
+                me.friends.push(f);
+                set(STORAGE.users, users);
+                render();
+                showNewPostNotif('Friend added!');
             }
         }
 
-        function removeFriend(friendUsername) {
-            const users = getUsers();
-            const current = users.find(u => u.username === currentUser);
-            current.friends = current.friends.filter(f => f !== friendUsername);
-            setUsers(users);
-            renderContent();
+        function removeFriend(f) {
+            const users = get(STORAGE.users);
+            const me = users.find(u => u.username === currentUser);
+            me.friends = me.friends.filter(x => x !== f);
+            set(STORAGE.users, users);
+            render();
         }
 
-        // UI switches
+        // === UI Helpers ===
         function showMain() {
-            authDiv.style.display = 'none';
-            mainDiv.style.display = 'block';
-            currentUserSpan.textContent = currentUser;
-            renderContent();
+            auth.style.display = 'none';
+            main.style.display = 'block';
+            userSpan.textContent = currentUser;
+            render();
+            lastPostCount = get(STORAGE.posts).length;
+            lastUserCount = get(STORAGE.users).length;
+
+            // Go online
+            goOnline();
+            onlineInterval = setInterval(goOnline, 10000); // Keep alive
+
+            // Start real-time polling
+            setInterval(checkForUpdates, 1000);
         }
 
         function showAuth() {
-            mainDiv.style.display = 'none';
-            authDiv.style.display = 'block';
+            main.style.display = 'none';
+            auth.style.display = 'block';
         }
 
         function switchToSignup() {
@@ -496,7 +758,41 @@
             document.getElementById('login-form').style.display = 'block';
         }
 
-        // Event listeners
+        function showNewPostNotif(msg = 'New post!') {
+            const notif = document.createElement('div');
+            notif.className = 'new-post-notif';
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        }
+
+        // === Real-time Updates (Polling + Storage Events) ===
+        function checkForUpdates() {
+            const currentPosts = get(STORAGE.posts).length;
+            const currentUsers = get(STORAGE.users).length;
+
+            if (currentPosts > lastPostCount && activeTab !== 'friends-list') {
+                render();
+                if (document.visibilityState === 'visible') {
+                    showNewPostNotif();
+                }
+            }
+            if (currentUsers !== lastUserCount) {
+                if (activeTab === 'friends-list') render();
+            }
+
+            lastPostCount = currentPosts;
+            lastUserCount = currentUsers;
+        }
+
+        window.addEventListener('storage', e => {
+            if (e.key === STORAGE.posts || e.key === STORAGE.users || e.key === STORAGE.online) {
+                checkForUpdates();
+                if (activeTab === 'friends-list') render();
+            }
+        });
+
+        // === Event Listeners ===
         document.getElementById('signup').addEventListener('submit', signup);
         document.getElementById('login').addEventListener('submit', login);
         document.getElementById('logout').addEventListener('click', logout);
@@ -504,22 +800,12 @@
         document.getElementById('switch-to-signup').addEventListener('click', switchToSignup);
         document.getElementById('switch-to-login').addEventListener('click', switchToLogin);
 
-        // Real-time simulation via storage event (for multi-tab demo)
-        window.addEventListener('storage', (event) => {
-            if (event.key === STORAGE_KEYS.posts || event.key === STORAGE_KEYS.users) {
-                renderContent();
-                // Visual cue: brief highlight on content
-                contentDiv.style.background = '#dbeafe';
-                setTimeout(() => { contentDiv.style.background = ''; }, 500);
-            }
-        });
+        // === Init ===
+        if (currentUser) showMain();
+        else showAuth();
 
-        // Initial load
-        if (currentUser) {
-            showMain();
-        } else {
-            showAuth();
-        }
+        // Cleanup on unload
+        window.addEventListener('beforeunload', goOffline);
     </script>
 </body>
 </html>
